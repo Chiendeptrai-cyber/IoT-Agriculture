@@ -1,0 +1,435 @@
+{
+  "config": {
+    "stale_after_seconds": 0.8,
+    "offline_after_seconds": 1.6,
+    "check_interval_seconds": 0.1
+  },
+  "online": {
+    "database": "E:\\IoT-Agriculture\\.test-runs\\task21-final-93c71236d4834631ade94590553a94d6\\test_live_timer_detects_silenc0\\live-health.db",
+    "total": 1,
+    "pending": 1,
+    "synced": 0,
+    "alerts": 0,
+    "quarantined": 0,
+    "device_actions": 0,
+    "classifications": {
+      "NORMAL": 1
+    },
+    "pump": {
+      "device_id": "pump",
+      "state": "OFF",
+      "last_event_id": null,
+      "updated_at": "2026-11-10T16:38:31.933562+00:00"
+    },
+    "sensors": [
+      {
+        "sensor_id": "SEN-001",
+        "records": 1,
+        "max_sequence": 1
+      }
+    ],
+    "recent_alerts": [],
+    "recent_actions": [],
+    "sensor_health": [
+      {
+        "sensor_id": "SEN-001",
+        "topic": "farm/sensors/temperature",
+        "state": "ONLINE",
+        "last_received_at": "2026-11-10T16:38:31.996606+00:00",
+        "monitoring_since": "2026-11-10T16:38:31.933619+00:00",
+        "updated_at": "2026-11-10T16:38:31.996606+00:00"
+      },
+      {
+        "sensor_id": "SEN-002",
+        "topic": "farm/sensors/humidity",
+        "state": "STALE",
+        "last_received_at": null,
+        "monitoring_since": "2026-11-10T16:38:31.933619+00:00",
+        "updated_at": "2026-11-10T16:38:31.933619+00:00"
+      },
+      {
+        "sensor_id": "SEN-003",
+        "topic": "farm/sensors/soil_moisture",
+        "state": "STALE",
+        "last_received_at": null,
+        "monitoring_since": "2026-11-10T16:38:31.933619+00:00",
+        "updated_at": "2026-11-10T16:38:31.933619+00:00"
+      }
+    ],
+    "recent_health_events": [
+      {
+        "id": 1,
+        "sensor_id": "SEN-001",
+        "previous_state": "STALE",
+        "state": "ONLINE",
+        "reason": "new valid reading received",
+        "created_at": "2026-11-10T16:38:31.996606+00:00"
+      }
+    ]
+  },
+  "stale": {
+    "database": "E:\\IoT-Agriculture\\.test-runs\\task21-final-93c71236d4834631ade94590553a94d6\\test_live_timer_detects_silenc0\\live-health.db",
+    "total": 1,
+    "pending": 1,
+    "synced": 0,
+    "alerts": 0,
+    "quarantined": 0,
+    "device_actions": 0,
+    "classifications": {
+      "NORMAL": 1
+    },
+    "pump": {
+      "device_id": "pump",
+      "state": "OFF",
+      "last_event_id": null,
+      "updated_at": "2026-11-10T16:38:31.933562+00:00"
+    },
+    "sensors": [
+      {
+        "sensor_id": "SEN-001",
+        "records": 1,
+        "max_sequence": 1
+      }
+    ],
+    "recent_alerts": [],
+    "recent_actions": [],
+    "sensor_health": [
+      {
+        "sensor_id": "SEN-001",
+        "topic": "farm/sensors/temperature",
+        "state": "STALE",
+        "last_received_at": "2026-11-10T16:38:31.996606+00:00",
+        "monitoring_since": "2026-11-10T16:38:31.933619+00:00",
+        "updated_at": "2026-11-10T16:38:32.977248+00:00"
+      },
+      {
+        "sensor_id": "SEN-002",
+        "topic": "farm/sensors/humidity",
+        "state": "STALE",
+        "last_received_at": null,
+        "monitoring_since": "2026-11-10T16:38:31.933619+00:00",
+        "updated_at": "2026-11-10T16:38:31.933619+00:00"
+      },
+      {
+        "sensor_id": "SEN-003",
+        "topic": "farm/sensors/soil_moisture",
+        "state": "STALE",
+        "last_received_at": null,
+        "monitoring_since": "2026-11-10T16:38:31.933619+00:00",
+        "updated_at": "2026-11-10T16:38:31.933619+00:00"
+      }
+    ],
+    "recent_health_events": [
+      {
+        "id": 2,
+        "sensor_id": "SEN-001",
+        "previous_state": "ONLINE",
+        "state": "STALE",
+        "reason": "no new valid reading for 1.0s",
+        "created_at": "2026-11-10T16:38:32.977248+00:00"
+      },
+      {
+        "id": 1,
+        "sensor_id": "SEN-001",
+        "previous_state": "STALE",
+        "state": "ONLINE",
+        "reason": "new valid reading received",
+        "created_at": "2026-11-10T16:38:31.996606+00:00"
+      }
+    ]
+  },
+  "offline": {
+    "database": "E:\\IoT-Agriculture\\.test-runs\\task21-final-93c71236d4834631ade94590553a94d6\\test_live_timer_detects_silenc0\\live-health.db",
+    "total": 1,
+    "pending": 1,
+    "synced": 0,
+    "alerts": 0,
+    "quarantined": 0,
+    "device_actions": 0,
+    "classifications": {
+      "NORMAL": 1
+    },
+    "pump": {
+      "device_id": "pump",
+      "state": "OFF",
+      "last_event_id": null,
+      "updated_at": "2026-11-10T16:38:31.933562+00:00"
+    },
+    "sensors": [
+      {
+        "sensor_id": "SEN-001",
+        "records": 1,
+        "max_sequence": 1
+      }
+    ],
+    "recent_alerts": [],
+    "recent_actions": [],
+    "sensor_health": [
+      {
+        "sensor_id": "SEN-001",
+        "topic": "farm/sensors/temperature",
+        "state": "OFFLINE",
+        "last_received_at": "2026-11-10T16:38:31.996606+00:00",
+        "monitoring_since": "2026-11-10T16:38:31.933619+00:00",
+        "updated_at": "2026-11-10T16:38:33.597565+00:00"
+      },
+      {
+        "sensor_id": "SEN-002",
+        "topic": "farm/sensors/humidity",
+        "state": "OFFLINE",
+        "last_received_at": null,
+        "monitoring_since": "2026-11-10T16:38:31.933619+00:00",
+        "updated_at": "2026-11-10T16:38:33.597565+00:00"
+      },
+      {
+        "sensor_id": "SEN-003",
+        "topic": "farm/sensors/soil_moisture",
+        "state": "OFFLINE",
+        "last_received_at": null,
+        "monitoring_since": "2026-11-10T16:38:31.933619+00:00",
+        "updated_at": "2026-11-10T16:38:33.597565+00:00"
+      }
+    ],
+    "recent_health_events": [
+      {
+        "id": 5,
+        "sensor_id": "SEN-003",
+        "previous_state": "STALE",
+        "state": "OFFLINE",
+        "reason": "never received valid data; monitored for 1.7s",
+        "created_at": "2026-11-10T16:38:33.597565+00:00"
+      },
+      {
+        "id": 4,
+        "sensor_id": "SEN-002",
+        "previous_state": "STALE",
+        "state": "OFFLINE",
+        "reason": "never received valid data; monitored for 1.7s",
+        "created_at": "2026-11-10T16:38:33.597565+00:00"
+      },
+      {
+        "id": 3,
+        "sensor_id": "SEN-001",
+        "previous_state": "STALE",
+        "state": "OFFLINE",
+        "reason": "no new valid reading for 1.6s",
+        "created_at": "2026-11-10T16:38:33.597565+00:00"
+      },
+      {
+        "id": 2,
+        "sensor_id": "SEN-001",
+        "previous_state": "ONLINE",
+        "state": "STALE",
+        "reason": "no new valid reading for 1.0s",
+        "created_at": "2026-11-10T16:38:32.977248+00:00"
+      },
+      {
+        "id": 1,
+        "sensor_id": "SEN-001",
+        "previous_state": "STALE",
+        "state": "ONLINE",
+        "reason": "new valid reading received",
+        "created_at": "2026-11-10T16:38:31.996606+00:00"
+      }
+    ]
+  },
+  "after_duplicate": {
+    "database": "E:\\IoT-Agriculture\\.test-runs\\task21-final-93c71236d4834631ade94590553a94d6\\test_live_timer_detects_silenc0\\live-health.db",
+    "total": 1,
+    "pending": 1,
+    "synced": 0,
+    "alerts": 0,
+    "quarantined": 0,
+    "device_actions": 0,
+    "classifications": {
+      "NORMAL": 1
+    },
+    "pump": {
+      "device_id": "pump",
+      "state": "OFF",
+      "last_event_id": null,
+      "updated_at": "2026-11-10T16:38:31.933562+00:00"
+    },
+    "sensors": [
+      {
+        "sensor_id": "SEN-001",
+        "records": 1,
+        "max_sequence": 1
+      }
+    ],
+    "recent_alerts": [],
+    "recent_actions": [],
+    "sensor_health": [
+      {
+        "sensor_id": "SEN-001",
+        "topic": "farm/sensors/temperature",
+        "state": "OFFLINE",
+        "last_received_at": "2026-11-10T16:38:31.996606+00:00",
+        "monitoring_since": "2026-11-10T16:38:31.933619+00:00",
+        "updated_at": "2026-11-10T16:38:33.597565+00:00"
+      },
+      {
+        "sensor_id": "SEN-002",
+        "topic": "farm/sensors/humidity",
+        "state": "OFFLINE",
+        "last_received_at": null,
+        "monitoring_since": "2026-11-10T16:38:31.933619+00:00",
+        "updated_at": "2026-11-10T16:38:33.597565+00:00"
+      },
+      {
+        "sensor_id": "SEN-003",
+        "topic": "farm/sensors/soil_moisture",
+        "state": "OFFLINE",
+        "last_received_at": null,
+        "monitoring_since": "2026-11-10T16:38:31.933619+00:00",
+        "updated_at": "2026-11-10T16:38:33.597565+00:00"
+      }
+    ],
+    "recent_health_events": [
+      {
+        "id": 5,
+        "sensor_id": "SEN-003",
+        "previous_state": "STALE",
+        "state": "OFFLINE",
+        "reason": "never received valid data; monitored for 1.7s",
+        "created_at": "2026-11-10T16:38:33.597565+00:00"
+      },
+      {
+        "id": 4,
+        "sensor_id": "SEN-002",
+        "previous_state": "STALE",
+        "state": "OFFLINE",
+        "reason": "never received valid data; monitored for 1.7s",
+        "created_at": "2026-11-10T16:38:33.597565+00:00"
+      },
+      {
+        "id": 3,
+        "sensor_id": "SEN-001",
+        "previous_state": "STALE",
+        "state": "OFFLINE",
+        "reason": "no new valid reading for 1.6s",
+        "created_at": "2026-11-10T16:38:33.597565+00:00"
+      },
+      {
+        "id": 2,
+        "sensor_id": "SEN-001",
+        "previous_state": "ONLINE",
+        "state": "STALE",
+        "reason": "no new valid reading for 1.0s",
+        "created_at": "2026-11-10T16:38:32.977248+00:00"
+      },
+      {
+        "id": 1,
+        "sensor_id": "SEN-001",
+        "previous_state": "STALE",
+        "state": "ONLINE",
+        "reason": "new valid reading received",
+        "created_at": "2026-11-10T16:38:31.996606+00:00"
+      }
+    ]
+  },
+  "recovered": {
+    "database": "E:\\IoT-Agriculture\\.test-runs\\task21-final-93c71236d4834631ade94590553a94d6\\test_live_timer_detects_silenc0\\live-health.db",
+    "total": 2,
+    "pending": 2,
+    "synced": 0,
+    "alerts": 0,
+    "quarantined": 0,
+    "device_actions": 0,
+    "classifications": {
+      "NORMAL": 2
+    },
+    "pump": {
+      "device_id": "pump",
+      "state": "OFF",
+      "last_event_id": null,
+      "updated_at": "2026-11-10T16:38:31.933562+00:00"
+    },
+    "sensors": [
+      {
+        "sensor_id": "SEN-001",
+        "records": 2,
+        "max_sequence": 2
+      }
+    ],
+    "recent_alerts": [],
+    "recent_actions": [],
+    "sensor_health": [
+      {
+        "sensor_id": "SEN-001",
+        "topic": "farm/sensors/temperature",
+        "state": "ONLINE",
+        "last_received_at": "2026-11-10T16:38:33.647778+00:00",
+        "monitoring_since": "2026-11-10T16:38:31.933619+00:00",
+        "updated_at": "2026-11-10T16:38:33.647778+00:00"
+      },
+      {
+        "sensor_id": "SEN-002",
+        "topic": "farm/sensors/humidity",
+        "state": "OFFLINE",
+        "last_received_at": null,
+        "monitoring_since": "2026-11-10T16:38:31.933619+00:00",
+        "updated_at": "2026-11-10T16:38:33.597565+00:00"
+      },
+      {
+        "sensor_id": "SEN-003",
+        "topic": "farm/sensors/soil_moisture",
+        "state": "OFFLINE",
+        "last_received_at": null,
+        "monitoring_since": "2026-11-10T16:38:31.933619+00:00",
+        "updated_at": "2026-11-10T16:38:33.597565+00:00"
+      }
+    ],
+    "recent_health_events": [
+      {
+        "id": 6,
+        "sensor_id": "SEN-001",
+        "previous_state": "OFFLINE",
+        "state": "ONLINE",
+        "reason": "new valid reading received",
+        "created_at": "2026-11-10T16:38:33.647778+00:00"
+      },
+      {
+        "id": 5,
+        "sensor_id": "SEN-003",
+        "previous_state": "STALE",
+        "state": "OFFLINE",
+        "reason": "never received valid data; monitored for 1.7s",
+        "created_at": "2026-11-10T16:38:33.597565+00:00"
+      },
+      {
+        "id": 4,
+        "sensor_id": "SEN-002",
+        "previous_state": "STALE",
+        "state": "OFFLINE",
+        "reason": "never received valid data; monitored for 1.7s",
+        "created_at": "2026-11-10T16:38:33.597565+00:00"
+      },
+      {
+        "id": 3,
+        "sensor_id": "SEN-001",
+        "previous_state": "STALE",
+        "state": "OFFLINE",
+        "reason": "no new valid reading for 1.6s",
+        "created_at": "2026-11-10T16:38:33.597565+00:00"
+      },
+      {
+        "id": 2,
+        "sensor_id": "SEN-001",
+        "previous_state": "ONLINE",
+        "state": "STALE",
+        "reason": "no new valid reading for 1.0s",
+        "created_at": "2026-11-10T16:38:32.977248+00:00"
+      },
+      {
+        "id": 1,
+        "sensor_id": "SEN-001",
+        "previous_state": "STALE",
+        "state": "ONLINE",
+        "reason": "new valid reading received",
+        "created_at": "2026-11-10T16:38:31.996606+00:00"
+      }
+    ]
+  },
+  "process_log": "2026-11-10 23:38:31,938 INFO EDGE SQLite=E:\\IoT-Agriculture\\.test-runs\\task21-final-93c71236d4834631ade94590553a94d6\\test_live_timer_detects_silenc0\\live-health.db; all telemetry remains PENDING until Server sync is implemented\n2026-11-10 23:38:31,951 INFO EDGE MQTT SUBSCRIBED three topics qos=1; SQLite ready; Server not required\n2026-11-10 23:38:31,996 INFO EDGE Received SEN-001: 29.5 C; Validation successful\n2026-11-10 23:38:31,997 INFO EDGE STORED event_id=EVT-5c4e2f9e4b5f4c3f9927623b12c47bdd\n2026-11-10 23:38:31,997 INFO EDGE DURABLE Record persisted to SQLite event_id=EVT-5c4e2f9e4b5f4c3f9927623b12c47bdd classification=NORMAL sync_status=PENDING control_applied=True\n2026-11-10 23:38:31,997 INFO EDGE SENSOR_HEALTH sensor_id=SEN-001 previous=STALE state=ONLINE reason=new valid reading received\n2026-11-10 23:38:32,981 WARNING EDGE SENSOR_HEALTH sensor_id=SEN-001 previous=ONLINE state=STALE reason=no new valid reading for 1.0s\n2026-11-10 23:38:33,599 ERROR EDGE SENSOR_HEALTH sensor_id=SEN-001 previous=STALE state=OFFLINE reason=no new valid reading for 1.6s\n2026-11-10 23:38:33,599 ERROR EDGE SENSOR_HEALTH sensor_id=SEN-002 previous=STALE state=OFFLINE reason=never received valid data; monitored for 1.7s\n2026-11-10 23:38:33,599 ERROR EDGE SENSOR_HEALTH sensor_id=SEN-003 previous=STALE state=OFFLINE reason=never received valid data; monitored for 1.7s\n2026-11-10 23:38:33,627 INFO EDGE Received SEN-001: 29.5 C; Validation successful\n2026-11-10 23:38:33,627 INFO EDGE DUPLICATE event_id=EVT-5c4e2f9e4b5f4c3f9927623b12c47bdd\n2026-11-10 23:38:33,647 INFO EDGE Received SEN-001: 29.5 C; Validation successful\n2026-11-10 23:38:33,648 INFO EDGE STORED event_id=EVT-327080e79ab2437ca7b8a636dee8a774\n2026-11-10 23:38:33,649 INFO EDGE DURABLE Record persisted to SQLite event_id=EVT-327080e79ab2437ca7b8a636dee8a774 classification=NORMAL sync_status=PENDING control_applied=True\n2026-11-10 23:38:33,649 INFO EDGE SENSOR_HEALTH sensor_id=SEN-001 previous=OFFLINE state=ONLINE reason=new valid reading received\n"
+}

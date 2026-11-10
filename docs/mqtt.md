@@ -4,7 +4,7 @@
 
 Mosquitto là broker trung gian: publisher gửi dữ liệu vào topic; broker chuyển cho subscriber đã đăng ký topic đó. Paho MQTT là thư viện Python kết nối với broker. Sensor Simulator dùng lại mô hình sinh dữ liệu và JSON schema của Task 1.
 
-Task này hoàn thành đường truyền Sensor → broker → subscriber thử nghiệm. Subscriber chưa lưu SQLite, xử lý ngưỡng hoặc đồng bộ Server; đó là phần bàn giao cho các task Edge tiếp theo. MQTT không cần Server hoạt động.
+Phần MQTT hoàn thành đường truyền Sensor → broker → subscriber thử nghiệm. [Task 2.1 — Edge Gateway](edge.md) kiểm tra/phân loại dữ liệu, lưu SQLite, tạo cảnh báo, điều khiển bơm ảo và giám sát ONLINE/STALE/OFFLINE mà không cần Server. Subscriber thử nghiệm vẫn chỉ xem dữ liệu; chạy `edge-gateway/main.py` để lưu và xử lý. Đồng bộ HTTP lên Server sẽ được tích hợp với Task 3.
 
 ```mermaid
 flowchart LR
@@ -15,7 +15,8 @@ flowchart LR
     B -->|Ba topic, QoS 1| SUB[Paho Subscriber thử nghiệm]
     SUB --> V[Kiểm tra JSON + topic + sensor_id + unit]
     V --> OUT[Terminal JSONL / bằng chứng kiểm thử]
-    V -. Bàn giao task tiếp theo .-> E[Edge: SQLite + ngưỡng + đồng bộ Server]
+    B --> E[Edge Gateway: SQLite + ngưỡng + bơm ảo]
+    E -. Tích hợp Task 3 .-> SERVER[Server REST API]
 ```
 
 | Topic | sensor_id | unit |
@@ -154,7 +155,7 @@ Chạy subscriber trước, rồi:
 python sensor-simulator/main.py --demo --interval 1
 ```
 
-Demo có 4 pha, mỗi pha 2 chu kỳ: tất cả NORMAL → nhiệt độ ANOMALY → humidity OFFLINE → tất cả NORMAL. Bình thường nhận 22 sự kiện: temperature 8, humidity 6, soil_moisture 8. Trong pha OFFLINE không có bản đo humidity mới, hai topic còn lại vẫn gửi. Dữ liệu ANOMALY giữ nguyên schema dù giá trị có thể vượt dải đo; validation nghiệp vụ thuộc task Edge.
+Demo có 4 pha, mỗi pha 2 chu kỳ: tất cả NORMAL → nhiệt độ ANOMALY → humidity OFFLINE → tất cả NORMAL. Bình thường subscriber thử nghiệm nhận 22 sự kiện: temperature 8, humidity 6, soil_moisture 8. Trong pha OFFLINE không có bản đo humidity mới, hai topic còn lại vẫn gửi. Dữ liệu ANOMALY giữ nguyên schema dù giá trị có thể vượt dải đo; Edge mở rộng sẽ đưa giá trị ngoài dải vật lý vào quarantine, nên số bản ghi hợp lệ trong SQLite có thể ít hơn 22.
 
 Hoặc chạy từng cảm biến trong ba terminal rồi Ctrl+C ở humidity; hai topic còn lại tiếp tục. Subscriber không tự tạo bản đo, không lặp dữ liệu cũ. Chạy `--sensor humidity --mode OFFLINE --count 3 --interval 1` không phát bản đo nào.
 
@@ -175,7 +176,7 @@ Giới hạn cần trình bày khi bảo vệ:
 - Lúc client biết broker đang ngắt, bản đo mới bị bỏ qua và ghi `SKIPPED_DISCONNECTED`; không lưu đệm sensor xuống đĩa.
 - Mất kết nối trong lúc publish hoặc quá hạn PUBACK là trạng thái chưa chắc chắn (`NOT_CONFIRMED`/`ACK_TIMEOUT`); Paho có thể gửi lại bản tin QoS 1 còn trong RAM sau kết nối lại. Giới hạn queue client là 100 bản tin.
 - Dừng tiến trình publisher làm mất queue RAM. QoS 1 không đảm bảo mọi bản đo vượt qua thời gian broker ngừng hoạt động.
-- Khi Edge–Server mất mạng nhưng broker vẫn chạy, MQTT Sensor–Edge vẫn hoạt động. SQLite buffering và đồng bộ phục hồi thuộc các task sau, chưa được kiểm chứng trong Task 2.
+- Khi Server không hoạt động nhưng broker vẫn chạy, [Edge mở rộng](edge.md) vẫn lưu SQLite, tạo cảnh báo và điều khiển bơm ảo. Đã có kiểm thử cục bộ này; đồng bộ phục hồi lên Server chưa được triển khai.
 
 ## 6. Kiểm thử tự động và lưu bằng chứng
 
