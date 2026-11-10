@@ -1,1 +1,62 @@
-# Sensor simulator configuration
+simulation:
+  default_interval_seconds: 10
+  timezone: "UTC"
+  output_format: "json"
+
+sensors:
+  temperature:
+    sensor_id: "SEN-001"
+    name: "Temperature Sensor"
+    unit: "C"
+    interval_seconds: 10
+    mode: "NORMAL"
+    initial_value: 29.5
+    normal:
+      min_value: 20.0
+      max_value: 40.0
+      target_mean: 29.0
+      drift_std: 0.3
+      reversion_speed: 0.05
+    anomaly:
+      spike_min: 55.0
+      spike_max: 85.0
+      drop_min: -10.0
+      drop_max: 5.0
+
+  humidity:
+    sensor_id: "SEN-002"
+    name: "Air Humidity Sensor"
+    unit: "%"
+    interval_seconds: 10
+    mode: "NORMAL"
+    initial_value: 72.0
+    normal:
+      min_value: 40.0
+      max_value: 95.0
+      target_mean: 70.0
+      drift_std: 0.8
+      reversion_speed: 0.05
+    anomaly:
+      spike_min: 99.0
+      spike_max: 110.0
+      drop_min: 2.0
+      drop_max: 12.0
+
+  soil_moisture:
+    sensor_id: "SEN-003"
+    name: "Soil Moisture Sensor"
+    unit: "%"
+    interval_seconds: 10
+    mode: "NORMAL"
+    initial_value: 58.0
+    normal:
+      min_value: 30.0
+      max_value: 80.0
+      target_mean: 55.0
+      drift_std: 0.2
+      reversion_speed: 0.02
+    anomaly:
+      spike_min: 96.0
+      spike_max: 100.0
+      drop_min: 0.0
+      drop_max: 5.0

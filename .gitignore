@@ -1,7 +1,19 @@
+# Environments
 .venv/
-__pycache__/
-*.pyc
+env/
+venv/
 .env
+
+# Python cache
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+
+# Databases & Logs
 *.db
+*.log
+
+# IDEs
 .idea/
 .vscode/
