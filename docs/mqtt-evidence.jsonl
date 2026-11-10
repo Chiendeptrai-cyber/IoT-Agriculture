@@ -1,0 +1,3 @@
+{"topic": "farm/sensors/temperature", "qos": 1, "received_at": "2026-11-10T15:26:24.470899+00:00", "event": {"event_id": "EVT-4A4E19802AC8", "sensor_id": "SEN-001", "timestamp": "2026-11-10T15:26:24Z", "sequence": 1, "value": 29.61, "unit": "C"}}
+{"topic": "farm/sensors/humidity", "qos": 1, "received_at": "2026-11-10T15:26:24.473582+00:00", "event": {"event_id": "EVT-8F07ABC709AB", "sensor_id": "SEN-002", "timestamp": "2026-11-10T15:26:24Z", "sequence": 1, "value": 70.55, "unit": "%"}}
+{"topic": "farm/sensors/soil_moisture", "qos": 1, "received_at": "2026-11-10T15:26:24.476879+00:00", "event": {"event_id": "EVT-70AD6EFE73D3", "sensor_id": "SEN-003", "timestamp": "2026-11-10T15:26:24Z", "sequence": 1, "value": 57.94, "unit": "%"}}

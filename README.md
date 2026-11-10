@@ -1,18 +1,37 @@
-# Task 1: Sensor Simulator cho 3 cảm biến IoT
+# Smart Agriculture — Task 1 & Task 2
 
-Xem tài liệu chi tiết và hướng dẫn sử dụng trong thư mục [`sensor-simulator/README.md`](file:///c:/Users/admin/Desktop/cnnt/sensor-simulator/README.md).
+Task 1 mô phỏng ba cảm biến. Task 2 truyền JSON qua Eclipse Mosquitto bằng MQTT/TCP, QoS 1.
+
+- [Hướng dẫn Task 2: cấu hình, sơ đồ, chạy và nghiệm thu](docs/mqtt.md)
+- [Kết quả kiểm thử](docs/test-results.md)
+- [Chi tiết mô phỏng Task 1](sensor-simulator/README.md)
 
 ## Quick Start:
 ```bash
-# Cài đặt thư viện:
+# Từ thư mục gốc, dùng Python 3.12+ trong virtual environment:
+python -m venv .venv
+# Linux: source .venv/bin/activate
+# PowerShell: .\.venv\Scripts\Activate.ps1
 pip install -r sensor-simulator/requirements.txt
 
-# Chạy kịch bản demo kiểm thử 3 cảm biến & chuyển đổi chế độ:
-python sensor-simulator/main.py --demo --interval 1
+# Khởi động broker:
+docker compose -f infrastructure/docker-compose.yml up -d --wait mosquitto
 
-# Chạy hệ thống 3 cảm biến định kỳ mỗi 10s:
+# Terminal 1: subscriber (chạy trước publisher)
+python sensor-simulator/mqtt_subscriber.py
+
+# Terminal 2: ba cảm biến publish MQTT mỗi 10 giây
 python sensor-simulator/main.py
 
-# Chạy bộ unit test kiểm tra toàn bộ tiêu chuẩn nghiệm thu:
-python -m pytest tests/test_simulator.py -v
+# Demo NORMAL → ANOMALY → OFFLINE → NORMAL qua MQTT:
+python sensor-simulator/main.py --demo --interval 1
+
+# Chạy lại Task 1, chỉ xuất terminal:
+python sensor-simulator/main.py --terminal --count 3 --interval 1
+
+# Unit tests (integration tests được bỏ qua nếu chưa bật):
+python -m pytest tests/test_simulator.py tests/test_mqtt.py -v
 ```
+
+Broker demo chỉ mở trên `127.0.0.1:1883`, cho phép anonymous. MQTT không phụ thuộc Server.
+Subscriber hiện tại phục vụ kiểm thử; validation nghiệp vụ, SQLite và xử lý Edge là các task tiếp theo.

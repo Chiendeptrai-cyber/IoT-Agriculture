@@ -1,5 +1,8 @@
 # IoT Sensor Simulator (Task 1)
 
+> Task 2 đã bổ sung MQTT: `main.py` mặc định publish lên broker. Xem [hướng dẫn MQTT](../docs/mqtt.md).
+> Các ví dụ dưới đây dùng `--terminal` để tái hiện Task 1; chạy từng file cảm biến vẫn xuất terminal.
+
 Hệ thống mô phỏng 3 cảm biến môi trường IoT phục vụ thu thập và sinh dữ liệu chuỗi thời gian (time-series) cho hệ thống IoT.
 
 ---
@@ -169,17 +172,17 @@ Sử dụng script điều phối `main.py`:
 
 ```bash
 # Chạy cả 3 cảm biến đồng thời mỗi 10 giây
-python sensor-simulator/main.py
+python sensor-simulator/main.py --terminal
 
 # Chạy với chu kỳ tùy chỉnh (ví dụ 2 giây)
-python sensor-simulator/main.py --interval 2
+python sensor-simulator/main.py --terminal --interval 2
 ```
 
 ### 5.4. Chạy kịch bản Demo chuyển đổi trạng thái tự động
 Để kiểm chứng trực quan tiêu chuẩn chuyển đổi giữa `NORMAL -> ANOMALY -> OFFLINE -> NORMAL`:
 
 ```bash
-python sensor-simulator/main.py --demo --interval 1
+python sensor-simulator/main.py --terminal --demo --interval 1
 ```
 
 ---
