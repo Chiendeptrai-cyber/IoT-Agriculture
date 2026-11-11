@@ -1,0 +1,28 @@
+# Demonstration thresholds, not crop-specific agricultural recommendations.
+thresholds:
+  temperature_high: 35
+  humidity_low: 40
+  soil_on_below: 30
+  soil_off_above: 35
+
+valid_ranges:
+  temperature: [-40, 125]
+  humidity: [0, 100]
+  soil_moisture: [0, 100]
+
+# Values inside the physical range may still be unusual for this demo.
+normal_ranges:
+  temperature: [20, 40]
+  humidity: [40, 95]
+  soil_moisture: [30, 80]
+
+# Keep delayed valid readings for synchronization, but do not control the pump
+# or generate threshold alerts from readings older than this interval.
+control_max_age_seconds: 60
+future_tolerance_seconds: 30
+max_payload_bytes: 65536
+
+sensor_health:
+  stale_after_seconds: 30
+  offline_after_seconds: 60
+  check_interval_seconds: 1

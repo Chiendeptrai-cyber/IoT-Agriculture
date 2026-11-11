@@ -1,0 +1,393 @@
+{
+  "server_url_unavailable": "http://127.0.0.1:50285",
+  "before_restart": {
+    "database": "E:\\IoT-Agriculture\\.test-runs\\task21-final-93c71236d4834631ade94590553a94d6\\test_live_mqtt_edge_without_se0\\live-edge.db",
+    "total": 3,
+    "pending": 3,
+    "synced": 0,
+    "alerts": 2,
+    "quarantined": 0,
+    "device_actions": 1,
+    "classifications": {
+      "ANOMALY": 3
+    },
+    "pump": {
+      "device_id": "pump",
+      "state": "ON",
+      "last_event_id": "EVT-8750cca19c1c4212b8dd64520baf24a0",
+      "updated_at": "2026-11-10T16:38:26.188302+00:00"
+    },
+    "sensors": [
+      {
+        "sensor_id": "SEN-001",
+        "records": 1,
+        "max_sequence": 1
+      },
+      {
+        "sensor_id": "SEN-002",
+        "records": 1,
+        "max_sequence": 1
+      },
+      {
+        "sensor_id": "SEN-003",
+        "records": 1,
+        "max_sequence": 1
+      }
+    ],
+    "recent_alerts": [
+      {
+        "id": 2,
+        "event_id": "EVT-a56974f5333f4a99ae2b4ba0575dc549",
+        "kind": "LOW_HUMIDITY",
+        "value": 35.0,
+        "threshold": 40.0,
+        "created_at": "2026-11-10T16:38:26.180145+00:00"
+      },
+      {
+        "id": 1,
+        "event_id": "EVT-63bda08863f2416ca13bafa7cdf6eef0",
+        "kind": "HIGH_TEMPERATURE",
+        "value": 40.0,
+        "threshold": 35.0,
+        "created_at": "2026-11-10T16:38:26.171254+00:00"
+      }
+    ],
+    "recent_actions": [
+      {
+        "id": 1,
+        "event_id": "EVT-8750cca19c1c4212b8dd64520baf24a0",
+        "previous_state": "OFF",
+        "state": "ON",
+        "created_at": "2026-11-10T16:38:26.188302+00:00"
+      }
+    ],
+    "sensor_health": [
+      {
+        "sensor_id": "SEN-001",
+        "topic": "farm/sensors/temperature",
+        "state": "ONLINE",
+        "last_received_at": "2026-11-10T16:38:26.171254+00:00",
+        "monitoring_since": "2026-11-10T16:38:26.099891+00:00",
+        "updated_at": "2026-11-10T16:38:26.171254+00:00"
+      },
+      {
+        "sensor_id": "SEN-002",
+        "topic": "farm/sensors/humidity",
+        "state": "ONLINE",
+        "last_received_at": "2026-11-10T16:38:26.180145+00:00",
+        "monitoring_since": "2026-11-10T16:38:26.099891+00:00",
+        "updated_at": "2026-11-10T16:38:26.180145+00:00"
+      },
+      {
+        "sensor_id": "SEN-003",
+        "topic": "farm/sensors/soil_moisture",
+        "state": "ONLINE",
+        "last_received_at": "2026-11-10T16:38:26.188302+00:00",
+        "monitoring_since": "2026-11-10T16:38:26.099891+00:00",
+        "updated_at": "2026-11-10T16:38:26.188302+00:00"
+      }
+    ],
+    "recent_health_events": [
+      {
+        "id": 3,
+        "sensor_id": "SEN-003",
+        "previous_state": "STALE",
+        "state": "ONLINE",
+        "reason": "new valid reading received",
+        "created_at": "2026-11-10T16:38:26.188302+00:00"
+      },
+      {
+        "id": 2,
+        "sensor_id": "SEN-002",
+        "previous_state": "STALE",
+        "state": "ONLINE",
+        "reason": "new valid reading received",
+        "created_at": "2026-11-10T16:38:26.180145+00:00"
+      },
+      {
+        "id": 1,
+        "sensor_id": "SEN-001",
+        "previous_state": "STALE",
+        "state": "ONLINE",
+        "reason": "new valid reading received",
+        "created_at": "2026-11-10T16:38:26.171254+00:00"
+      }
+    ]
+  },
+  "after_restart": {
+    "database": "E:\\IoT-Agriculture\\.test-runs\\task21-final-93c71236d4834631ade94590553a94d6\\test_live_mqtt_edge_without_se0\\live-edge.db",
+    "total": 5,
+    "pending": 5,
+    "synced": 0,
+    "alerts": 2,
+    "quarantined": 0,
+    "device_actions": 2,
+    "classifications": {
+      "ANOMALY": 3,
+      "NORMAL": 2
+    },
+    "pump": {
+      "device_id": "pump",
+      "state": "OFF",
+      "last_event_id": "EVT-71bc47e98af846c699c5851b9cc264f3",
+      "updated_at": "2026-11-10T16:38:26.722503+00:00"
+    },
+    "sensors": [
+      {
+        "sensor_id": "SEN-001",
+        "records": 1,
+        "max_sequence": 1
+      },
+      {
+        "sensor_id": "SEN-002",
+        "records": 1,
+        "max_sequence": 1
+      },
+      {
+        "sensor_id": "SEN-003",
+        "records": 3,
+        "max_sequence": 3
+      }
+    ],
+    "recent_alerts": [
+      {
+        "id": 2,
+        "event_id": "EVT-a56974f5333f4a99ae2b4ba0575dc549",
+        "kind": "LOW_HUMIDITY",
+        "value": 35.0,
+        "threshold": 40.0,
+        "created_at": "2026-11-10T16:38:26.180145+00:00"
+      },
+      {
+        "id": 1,
+        "event_id": "EVT-63bda08863f2416ca13bafa7cdf6eef0",
+        "kind": "HIGH_TEMPERATURE",
+        "value": 40.0,
+        "threshold": 35.0,
+        "created_at": "2026-11-10T16:38:26.171254+00:00"
+      }
+    ],
+    "recent_actions": [
+      {
+        "id": 2,
+        "event_id": "EVT-71bc47e98af846c699c5851b9cc264f3",
+        "previous_state": "ON",
+        "state": "OFF",
+        "created_at": "2026-11-10T16:38:26.722503+00:00"
+      },
+      {
+        "id": 1,
+        "event_id": "EVT-8750cca19c1c4212b8dd64520baf24a0",
+        "previous_state": "OFF",
+        "state": "ON",
+        "created_at": "2026-11-10T16:38:26.188302+00:00"
+      }
+    ],
+    "sensor_health": [
+      {
+        "sensor_id": "SEN-001",
+        "topic": "farm/sensors/temperature",
+        "state": "ONLINE",
+        "last_received_at": "2026-11-10T16:38:26.171254+00:00",
+        "monitoring_since": "2026-11-10T16:38:26.099891+00:00",
+        "updated_at": "2026-11-10T16:38:26.171254+00:00"
+      },
+      {
+        "sensor_id": "SEN-002",
+        "topic": "farm/sensors/humidity",
+        "state": "ONLINE",
+        "last_received_at": "2026-11-10T16:38:26.180145+00:00",
+        "monitoring_since": "2026-11-10T16:38:26.099891+00:00",
+        "updated_at": "2026-11-10T16:38:26.180145+00:00"
+      },
+      {
+        "sensor_id": "SEN-003",
+        "topic": "farm/sensors/soil_moisture",
+        "state": "ONLINE",
+        "last_received_at": "2026-11-10T16:38:26.722503+00:00",
+        "monitoring_since": "2026-11-10T16:38:26.099891+00:00",
+        "updated_at": "2026-11-10T16:38:26.722503+00:00"
+      }
+    ],
+    "recent_health_events": [
+      {
+        "id": 3,
+        "sensor_id": "SEN-003",
+        "previous_state": "STALE",
+        "state": "ONLINE",
+        "reason": "new valid reading received",
+        "created_at": "2026-11-10T16:38:26.188302+00:00"
+      },
+      {
+        "id": 2,
+        "sensor_id": "SEN-002",
+        "previous_state": "STALE",
+        "state": "ONLINE",
+        "reason": "new valid reading received",
+        "created_at": "2026-11-10T16:38:26.180145+00:00"
+      },
+      {
+        "id": 1,
+        "sensor_id": "SEN-001",
+        "previous_state": "STALE",
+        "state": "ONLINE",
+        "reason": "new valid reading received",
+        "created_at": "2026-11-10T16:38:26.171254+00:00"
+      }
+    ]
+  },
+  "after_demo": {
+    "database": "E:\\IoT-Agriculture\\.test-runs\\task21-final-93c71236d4834631ade94590553a94d6\\test_live_mqtt_edge_without_se0\\live-edge.db",
+    "total": 10,
+    "pending": 10,
+    "synced": 0,
+    "alerts": 4,
+    "quarantined": 1,
+    "device_actions": 4,
+    "classifications": {
+      "ANOMALY": 6,
+      "NORMAL": 4
+    },
+    "pump": {
+      "device_id": "pump",
+      "state": "OFF",
+      "last_event_id": "EVT-FC546E573DC3",
+      "updated_at": "2026-11-10T16:38:27.388319+00:00"
+    },
+    "sensors": [
+      {
+        "sensor_id": "SEN-001",
+        "records": 2,
+        "max_sequence": 1
+      },
+      {
+        "sensor_id": "SEN-002",
+        "records": 2,
+        "max_sequence": 1
+      },
+      {
+        "sensor_id": "SEN-003",
+        "records": 6,
+        "max_sequence": 3
+      }
+    ],
+    "recent_alerts": [
+      {
+        "id": 4,
+        "event_id": "EVT-169FF740EF07",
+        "kind": "LOW_HUMIDITY",
+        "value": 35.0,
+        "threshold": 40.0,
+        "created_at": "2026-11-10T16:38:27.212871+00:00"
+      },
+      {
+        "id": 3,
+        "event_id": "EVT-02B36BC77691",
+        "kind": "HIGH_TEMPERATURE",
+        "value": 40.0,
+        "threshold": 35.0,
+        "created_at": "2026-11-10T16:38:27.156237+00:00"
+      },
+      {
+        "id": 2,
+        "event_id": "EVT-a56974f5333f4a99ae2b4ba0575dc549",
+        "kind": "LOW_HUMIDITY",
+        "value": 35.0,
+        "threshold": 40.0,
+        "created_at": "2026-11-10T16:38:26.180145+00:00"
+      },
+      {
+        "id": 1,
+        "event_id": "EVT-63bda08863f2416ca13bafa7cdf6eef0",
+        "kind": "HIGH_TEMPERATURE",
+        "value": 40.0,
+        "threshold": 35.0,
+        "created_at": "2026-11-10T16:38:26.171254+00:00"
+      }
+    ],
+    "recent_actions": [
+      {
+        "id": 4,
+        "event_id": "EVT-FC546E573DC3",
+        "previous_state": "ON",
+        "state": "OFF",
+        "created_at": "2026-11-10T16:38:27.388319+00:00"
+      },
+      {
+        "id": 3,
+        "event_id": "EVT-787BBC4D19CA",
+        "previous_state": "OFF",
+        "state": "ON",
+        "created_at": "2026-11-10T16:38:27.268864+00:00"
+      },
+      {
+        "id": 2,
+        "event_id": "EVT-71bc47e98af846c699c5851b9cc264f3",
+        "previous_state": "ON",
+        "state": "OFF",
+        "created_at": "2026-11-10T16:38:26.722503+00:00"
+      },
+      {
+        "id": 1,
+        "event_id": "EVT-8750cca19c1c4212b8dd64520baf24a0",
+        "previous_state": "OFF",
+        "state": "ON",
+        "created_at": "2026-11-10T16:38:26.188302+00:00"
+      }
+    ],
+    "sensor_health": [
+      {
+        "sensor_id": "SEN-001",
+        "topic": "farm/sensors/temperature",
+        "state": "ONLINE",
+        "last_received_at": "2026-11-10T16:38:27.156237+00:00",
+        "monitoring_since": "2026-11-10T16:38:26.099891+00:00",
+        "updated_at": "2026-11-10T16:38:27.156237+00:00"
+      },
+      {
+        "sensor_id": "SEN-002",
+        "topic": "farm/sensors/humidity",
+        "state": "ONLINE",
+        "last_received_at": "2026-11-10T16:38:27.212871+00:00",
+        "monitoring_since": "2026-11-10T16:38:26.099891+00:00",
+        "updated_at": "2026-11-10T16:38:27.212871+00:00"
+      },
+      {
+        "sensor_id": "SEN-003",
+        "topic": "farm/sensors/soil_moisture",
+        "state": "ONLINE",
+        "last_received_at": "2026-11-10T16:38:27.388319+00:00",
+        "monitoring_since": "2026-11-10T16:38:26.099891+00:00",
+        "updated_at": "2026-11-10T16:38:27.388319+00:00"
+      }
+    ],
+    "recent_health_events": [
+      {
+        "id": 3,
+        "sensor_id": "SEN-003",
+        "previous_state": "STALE",
+        "state": "ONLINE",
+        "reason": "new valid reading received",
+        "created_at": "2026-11-10T16:38:26.188302+00:00"
+      },
+      {
+        "id": 2,
+        "sensor_id": "SEN-002",
+        "previous_state": "STALE",
+        "state": "ONLINE",
+        "reason": "new valid reading received",
+        "created_at": "2026-11-10T16:38:26.180145+00:00"
+      },
+      {
+        "id": 1,
+        "sensor_id": "SEN-001",
+        "previous_state": "STALE",
+        "state": "ONLINE",
+        "reason": "new valid reading received",
+        "created_at": "2026-11-10T16:38:26.171254+00:00"
+      }
+    ]
+  },
+  "first_process_log": "2026-11-10 23:38:26,103 INFO EDGE SQLite=E:\\IoT-Agriculture\\.test-runs\\task21-final-93c71236d4834631ade94590553a94d6\\test_live_mqtt_edge_without_se0\\live-edge.db; all telemetry remains PENDING until Server sync is implemented\n2026-11-10 23:38:26,114 INFO EDGE MQTT SUBSCRIBED three topics qos=1; SQLite ready; Server not required\n2026-11-10 23:38:26,171 INFO EDGE Received SEN-001: 40 C; Validation successful\n2026-11-10 23:38:26,174 INFO EDGE STORED event_id=EVT-63bda08863f2416ca13bafa7cdf6eef0\n2026-11-10 23:38:26,174 INFO EDGE DURABLE Record persisted to SQLite event_id=EVT-63bda08863f2416ca13bafa7cdf6eef0 classification=ANOMALY sync_status=PENDING control_applied=True\n2026-11-10 23:38:26,174 INFO EDGE SENSOR_HEALTH sensor_id=SEN-001 previous=STALE state=ONLINE reason=new valid reading received\n2026-11-10 23:38:26,175 WARNING EDGE ALERT kind=HIGH_TEMPERATURE event_id=EVT-63bda08863f2416ca13bafa7cdf6eef0\n2026-11-10 23:38:26,180 INFO EDGE Received SEN-002: 35 %; Validation successful\n2026-11-10 23:38:26,181 INFO EDGE STORED event_id=EVT-a56974f5333f4a99ae2b4ba0575dc549\n2026-11-10 23:38:26,181 INFO EDGE DURABLE Record persisted to SQLite event_id=EVT-a56974f5333f4a99ae2b4ba0575dc549 classification=ANOMALY sync_status=PENDING control_applied=True\n2026-11-10 23:38:26,181 INFO EDGE SENSOR_HEALTH sensor_id=SEN-002 previous=STALE state=ONLINE reason=new valid reading received\n2026-11-10 23:38:26,181 WARNING EDGE ALERT kind=LOW_HUMIDITY event_id=EVT-a56974f5333f4a99ae2b4ba0575dc549\n2026-11-10 23:38:26,188 INFO EDGE Received SEN-003: 20 %; Validation successful\n2026-11-10 23:38:26,189 INFO EDGE STORED event_id=EVT-8750cca19c1c4212b8dd64520baf24a0\n2026-11-10 23:38:26,189 INFO EDGE DURABLE Record persisted to SQLite event_id=EVT-8750cca19c1c4212b8dd64520baf24a0 classification=ANOMALY sync_status=PENDING control_applied=True\n2026-11-10 23:38:26,189 INFO EDGE SENSOR_HEALTH sensor_id=SEN-003 previous=STALE state=ONLINE reason=new valid reading received\n2026-11-10 23:38:26,189 INFO EDGE VIRTUAL_PUMP state=ON event_id=EVT-8750cca19c1c4212b8dd64520baf24a0\n",
+  "second_process_log": "2026-11-10 23:38:26,566 INFO EDGE SQLite=E:\\IoT-Agriculture\\.test-runs\\task21-final-93c71236d4834631ade94590553a94d6\\test_live_mqtt_edge_without_se0\\live-edge.db; all telemetry remains PENDING until Server sync is implemented\n2026-11-10 23:38:26,597 INFO EDGE MQTT SUBSCRIBED three topics qos=1; SQLite ready; Server not required\n2026-11-10 23:38:26,645 INFO EDGE Received SEN-003: 32 %; Validation successful\n2026-11-10 23:38:26,648 INFO EDGE STORED event_id=EVT-1a3b0ffe1eb848d899793d649049db00\n2026-11-10 23:38:26,648 INFO EDGE DURABLE Record persisted to SQLite event_id=EVT-1a3b0ffe1eb848d899793d649049db00 classification=NORMAL sync_status=PENDING control_applied=True\n2026-11-10 23:38:26,722 INFO EDGE Received SEN-003: 40 %; Validation successful\n2026-11-10 23:38:26,723 INFO EDGE STORED event_id=EVT-71bc47e98af846c699c5851b9cc264f3\n2026-11-10 23:38:26,724 INFO EDGE DURABLE Record persisted to SQLite event_id=EVT-71bc47e98af846c699c5851b9cc264f3 classification=NORMAL sync_status=PENDING control_applied=True\n2026-11-10 23:38:26,724 INFO EDGE VIRTUAL_PUMP state=OFF event_id=EVT-71bc47e98af846c699c5851b9cc264f3\n2026-11-10 23:38:27,156 INFO EDGE Received SEN-001: 40 C; Validation successful\n2026-11-10 23:38:27,157 INFO EDGE STORED event_id=EVT-02B36BC77691\n2026-11-10 23:38:27,157 INFO EDGE DURABLE Record persisted to SQLite event_id=EVT-02B36BC77691 classification=ANOMALY sync_status=PENDING control_applied=True\n2026-11-10 23:38:27,157 WARNING EDGE ALERT kind=HIGH_TEMPERATURE event_id=EVT-02B36BC77691\n2026-11-10 23:38:27,212 INFO EDGE Received SEN-002: 35 %; Validation successful\n2026-11-10 23:38:27,214 INFO EDGE STORED event_id=EVT-169FF740EF07\n2026-11-10 23:38:27,214 INFO EDGE DURABLE Record persisted to SQLite event_id=EVT-169FF740EF07 classification=ANOMALY sync_status=PENDING control_applied=True\n2026-11-10 23:38:27,214 WARNING EDGE ALERT kind=LOW_HUMIDITY event_id=EVT-169FF740EF07\n2026-11-10 23:38:27,268 INFO EDGE Received SEN-003: 20 %; Validation successful\n2026-11-10 23:38:27,270 INFO EDGE STORED event_id=EVT-787BBC4D19CA\n2026-11-10 23:38:27,270 INFO EDGE DURABLE Record persisted to SQLite event_id=EVT-787BBC4D19CA classification=ANOMALY sync_status=PENDING control_applied=True\n2026-11-10 23:38:27,270 INFO EDGE VIRTUAL_PUMP state=ON event_id=EVT-787BBC4D19CA\n2026-11-10 23:38:27,324 INFO EDGE Received SEN-003: 32 %; Validation successful\n2026-11-10 23:38:27,325 INFO EDGE STORED event_id=EVT-6AE4FEAB7831\n2026-11-10 23:38:27,325 INFO EDGE DURABLE Record persisted to SQLite event_id=EVT-6AE4FEAB7831 classification=NORMAL sync_status=PENDING control_applied=True\n2026-11-10 23:38:27,388 INFO EDGE Received SEN-003: 40 %; Validation successful\n2026-11-10 23:38:27,389 INFO EDGE STORED event_id=EVT-FC546E573DC3\n2026-11-10 23:38:27,389 INFO EDGE DURABLE Record persisted to SQLite event_id=EVT-FC546E573DC3 classification=NORMAL sync_status=PENDING control_applied=True\n2026-11-10 23:38:27,389 INFO EDGE VIRTUAL_PUMP state=OFF event_id=EVT-FC546E573DC3\n2026-11-10 23:38:27,452 WARNING EDGE QUARANTINED topic=farm/sensors/humidity reason=Measurement outside physical range [0, 100]\n2026-11-10 23:38:27,510 INFO EDGE Received SEN-001: 40 C; Validation successful\n2026-11-10 23:38:27,510 INFO EDGE DUPLICATE event_id=EVT-02B36BC77691\n"
+}
