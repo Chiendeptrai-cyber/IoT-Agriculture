@@ -1,4 +1,74 @@
 services:
+  postgres:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-agri}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-agri_dev_only}
+      POSTGRES_DB: ${POSTGRES_DB:-smart_agriculture}
+    ports:
+      - "127.0.0.1:5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 3s
+      retries: 12
+      start_period: 10s
+
+  influxdb:
+    image: influxdb:2.7-alpine
+    restart: unless-stopped
+    environment:
+      DOCKER_INFLUXDB_INIT_MODE: setup
+      DOCKER_INFLUXDB_INIT_USERNAME: ${INFLUXDB_ADMIN_USER:-agri_admin}
+      DOCKER_INFLUXDB_INIT_PASSWORD: ${INFLUXDB_ADMIN_PASSWORD:-agri_dev_only}
+      DOCKER_INFLUXDB_INIT_ORG: ${INFLUXDB_ORG:-smart_agriculture}
+      DOCKER_INFLUXDB_INIT_BUCKET: ${INFLUXDB_BUCKET:-smart_agriculture}
+      DOCKER_INFLUXDB_INIT_ADMIN_TOKEN: ${INFLUXDB_TOKEN:-smart-agriculture-dev-token}
+    ports:
+      - "127.0.0.1:8086:8086"
+    volumes:
+      - influxdb_data:/var/lib/influxdb2
+      - influxdb_config:/etc/influxdb2
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO /dev/null http://127.0.0.1:8086/health"]
+      interval: 5s
+      timeout: 3s
+      retries: 24
+      start_period: 15s
+
+  server:
+    build:
+      context: ..
+      dockerfile: server/Dockerfile
+    restart: unless-stopped
+    environment:
+      DATABASE_URL: postgresql+psycopg://${POSTGRES_USER:-agri}:${POSTGRES_PASSWORD:-agri_dev_only}@postgres:5432/${POSTGRES_DB:-smart_agriculture}
+      INFLUX_URL: http://influxdb:8086
+      INFLUX_TOKEN: ${INFLUXDB_TOKEN:-smart-agriculture-dev-token}
+      INFLUX_ORG: ${INFLUXDB_ORG:-smart_agriculture}
+      INFLUX_BUCKET: ${INFLUXDB_BUCKET:-smart_agriculture}
+      STALE_AFTER_SECONDS: ${STALE_AFTER_SECONDS:-30}
+      OFFLINE_AFTER_SECONDS: ${OFFLINE_AFTER_SECONDS:-60}
+      TEMPERATURE_HIGH_THRESHOLD: ${TEMPERATURE_HIGH_THRESHOLD:-35}
+      HUMIDITY_LOW_THRESHOLD: ${HUMIDITY_LOW_THRESHOLD:-40}
+      SOIL_MOISTURE_LOW_THRESHOLD: ${SOIL_MOISTURE_LOW_THRESHOLD:-30}
+    ports:
+      - "127.0.0.1:8000:8000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      influxdb:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "python", "-c", "from urllib.request import urlopen; urlopen('http://127.0.0.1:8000/api/v1/health', timeout=3)"]
+      interval: 10s
+      timeout: 5s
+      retries: 6
+      start_period: 20s
+
   mosquitto:
     image: eclipse-mosquitto:2.0.22
     restart: unless-stopped
@@ -16,3 +86,6 @@ services:
 
 volumes:
   mosquitto_data:
+  postgres_data:
+  influxdb_data:
+  influxdb_config:
