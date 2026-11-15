@@ -62,9 +62,12 @@ Dashboard `Smart Agriculture Monitoring Dashboard` bao gồm 4 khu vực chức 
 ### Nhóm 2: Biến động Dữ liệu theo Thời gian (Trends & History)
 4. **Temperature Trend**:
    - Biểu đồ thời gian (Time-series) hiển thị diễn biến nhiệt độ liên tục theo Measurement Timestamp.
+   - **Mô hình động học thực tế**: Dữ liệu nhiệt độ không mô phỏng dạng sóng hình sin đối xứng nhân tạo mà áp dụng mô hình tiến trình ngẫu nhiên hoàn nguyên trung bình (**Mean-Reverting Ornstein-Uhlenbeck**) kết hợp hiệu ứng tích lũy bức xạ nhiệt ban ngày và quán tính nhiệt vật lý ($\Delta T$ giữa hai chu kỳ kế tiếp được khống chế mượt mà, phản ánh đúng đặc tính vi khí hậu nông nghiệp/nhà màng).
+   - Biểu đồ bao gồm giai đoạn tích nhiệt tự nhiên vượt ngưỡng cảnh báo nhiệt độ cao (**> 35°C**) và suy giảm dần khi tản nhiệt.
    - Kèm đường ngưỡng cảnh báo màu đỏ cố định tại mức **35°C**.
 5. **Soil Moisture Trend**:
-   - Biểu đồ thời gian hiển thị chu kỳ khô dần của đất và sự phục hồi khi máy bơm hoạt động.
+   - Biểu đồ thời gian hiển thị chu kỳ khô dần của đất do bốc thoát hơi nước (tốc độ bốc hơi tăng theo nhiệt độ môi trường) và quá trình thẩm thấu hồi phục khi máy bơm hoạt động.
+   - Không xuất hiện bước nhảy phi vật lý; dữ liệu biến thiên theo đường cong hấp thụ độ ẩm đất thực tế.
    - Kèm 2 đường ngưỡng hysteresis: **30%** (ngưỡng bật bơm) và **35%** (ngưỡng tắt bơm).
 
 ### Nhóm 3: Trạng thái Hệ thống & Vận hành (System Operations)

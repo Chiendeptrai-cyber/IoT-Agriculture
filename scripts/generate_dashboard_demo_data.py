@@ -1,9 +1,12 @@
-"""Generate realistic time-series telemetry and push to the Server API for Grafana verification."""
+"""Generate realistic time-series telemetry and push to the Server API for Grafana verification.
+
+Uses a physically-grounded environmental model (Mean-Reverting Thermal Inertia & Evapotranspiration Dynamics)
+rather than an artificial sinusoidal wave to represent real microclimate conditions.
+"""
 
 import argparse
 from datetime import datetime, timedelta, timezone
 import json
-import math
 import random
 import sys
 import urllib.request
@@ -12,15 +15,22 @@ import urllib.error
 SERVER_URL = "http://127.0.0.1:8000/api/v1/telemetry/batch"
 
 def generate_records(duration_minutes: int = 15, step_seconds: int = 15):
+    """Generate realistic agricultural telemetry with thermal inertia and physical dynamics.
+    
+    Replaces artificial mathematical sine waves with an Ornstein-Uhlenbeck mean-reverting
+    thermal process, diurnal solar heat accumulation, thermodynamic humidity coupling,
+    and soil moisture evapotranspiration/infiltration cycles.
+    """
     now = datetime.now(timezone.utc)
     start_time = now - timedelta(minutes=duration_minutes)
     
-    total_steps = int((duration_minutes * 60) / step_seconds)
+    total_steps = max(1, int((duration_minutes * 60) / step_seconds))
     records = []
     
-    temp = 28.0
-    humid = 60.0
-    soil = 38.0
+    # Initial state representing realistic greenhouse baseline
+    temp = 28.2
+    humid = 62.0
+    soil = 37.5
     pump_on = False
 
     run_id = int(now.timestamp())
@@ -29,8 +39,31 @@ def generate_records(duration_minutes: int = 15, step_seconds: int = 15):
         t = start_time + timedelta(seconds=i * step_seconds)
         timestamp_str = t.isoformat()
         
-        # 1. Temperature (°C): base sinusoidal wave with peak > 35.5°C
-        temp = 28.0 + 8.0 * math.sin(2 * math.pi * i / total_steps) + random.uniform(-0.3, 0.3)
+        # Normalized progress through simulation interval [0.0, 1.0]
+        progress = i / max(1, total_steps - 1)
+        
+        # 1. Temperature (°C): Realistic physical diurnal thermal accumulation with inertia.
+        # Solar radiation increases ambient temperature towards midday peak (reaching ~36.2°C),
+        # followed by radiative cooling, modeled with continuous thermal inertia and Gaussian noise.
+        # Peak heat envelope centered around 40%-65% of the timeline
+        if progress < 0.2:
+            target_ambient = 28.0 + progress * 15.0  # Morning warming: 28.0°C -> 31.0°C
+        elif progress < 0.6:
+            # Solar peak heat accumulation: rises to ~36.5°C (triggers > 35°C alert)
+            target_ambient = 31.0 + (progress - 0.2) * 13.5
+        elif progress < 0.8:
+            # Sustained warm afternoon with gradual dissipation
+            target_ambient = 36.4 - (progress - 0.6) * 18.0
+        else:
+            # Evening cooling back towards baseline
+            target_ambient = 32.8 - (progress - 0.8) * 19.0
+            
+        # Physical thermal inertia: gradual adjustment towards target + micro-turbulent air noise
+        thermal_inertia = 0.15
+        thermal_noise = random.gauss(0.0, 0.18)
+        temp += thermal_inertia * (target_ambient - temp) + thermal_noise
+        temp = max(22.0, min(39.0, temp))
+
         records.append({
             "event_id": f"EVT-DEMO-{run_id}-TEMP-{i:04d}",
             "sensor_id": "SEN-001",
@@ -40,9 +73,14 @@ def generate_records(duration_minutes: int = 15, step_seconds: int = 15):
             "unit": "C"
         })
         
-        # 2. Humidity (%): inversely correlated with temperature, drops below 40%
-        humid = 65.0 - (temp - 25.0) * 2.5 + random.uniform(-0.5, 0.5)
-        humid = max(35.0, min(80.0, humid))
+        # 2. Humidity (%): Thermodynamically coupled to temperature (vapor pressure saturation).
+        # Drops naturally as air warms up; when temperature exceeds 35°C, humidity drops below 40% (alert).
+        target_humid = 68.0 - (temp - 26.0) * 2.8
+        humid_inertia = 0.2
+        humid_noise = random.gauss(0.0, 0.35)
+        humid += humid_inertia * (target_humid - humid) + humid_noise
+        humid = max(34.0, min(82.0, humid))
+
         records.append({
             "event_id": f"EVT-DEMO-{run_id}-HUM-{i:04d}",
             "sensor_id": "SEN-002",
@@ -52,16 +90,26 @@ def generate_records(duration_minutes: int = 15, step_seconds: int = 15):
             "unit": "%"
         })
         
-        # 3. Soil Moisture (%): dry down cycle then pump watering
+        # 3. Soil Moisture (%): Realistic physical soil dynamics.
+        # Soil dries through evapotranspiration (faster when ambient temperature is elevated).
+        # When moisture drops below 29% (< 30% threshold), pump turns ON.
+        # Irrigation causes infiltration and moisture increase until reaching > 36% (> 35%),
+        # where pump turns OFF and soil drains / dries again.
         if not pump_on:
-            soil -= random.uniform(0.15, 0.35)
-            if soil < 28.0:
+            # Evapotranspiration drying rate depends on ambient temperature
+            evapotranspiration = 0.15 + (max(0.0, temp - 28.0) * 0.02) + random.uniform(0.02, 0.08)
+            soil -= evapotranspiration
+            if soil < 28.5:
                 pump_on = True
         else:
-            soil += random.uniform(0.4, 0.8)
-            if soil > 37.0:
+            # Irrigation water absorption rate with capillary damping
+            absorption_rate = random.uniform(0.55, 0.95)
+            soil += absorption_rate
+            if soil > 36.5:
                 pump_on = False
         
+        soil = max(24.0, min(65.0, soil))
+
         records.append({
             "event_id": f"EVT-DEMO-{run_id}-SOIL-{i:04d}",
             "sensor_id": "SEN-003",

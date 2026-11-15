@@ -26,3 +26,14 @@ sensor_health:
   stale_after_seconds: 30
   offline_after_seconds: 60
   check_interval_seconds: 1
+
+sync:
+  server_url: "http://127.0.0.1:8000/api/v1/telemetry/batch"
+  health_url: "http://127.0.0.1:8000/api/v1/health"
+  gateway_id: "GW-001"
+  batch_size: 100
+  interval_seconds: 5.0
+  timeout_seconds: 5.0
+  retry_initial_backoff: 1.0
+  retry_max_backoff: 30.0
+  retry_backoff_factor: 2.0

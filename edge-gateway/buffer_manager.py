@@ -274,6 +274,27 @@ class BufferManager:
             )
             return result.rowcount
 
+    def get_pending_count(self) -> int:
+        """Count records awaiting synchronization to Server."""
+        with self.lock:
+            return self.connection.execute(
+                "SELECT COUNT(*) FROM telemetry WHERE sync_status='PENDING'"
+            ).fetchone()[0]
+
+    def get_synced_count(self) -> int:
+        """Count records durably acknowledged and synchronized to Server."""
+        with self.lock:
+            return self.connection.execute(
+                "SELECT COUNT(*) FROM telemetry WHERE sync_status='SYNCED'"
+            ).fetchone()[0]
+
+    def get_total_count(self) -> int:
+        """Count total stored telemetry records."""
+        with self.lock:
+            return self.connection.execute(
+                "SELECT COUNT(*) FROM telemetry"
+            ).fetchone()[0]
+
     def close(self):
         with self.lock:
             self.connection.close()
