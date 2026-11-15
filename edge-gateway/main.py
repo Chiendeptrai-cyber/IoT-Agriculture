@@ -29,6 +29,7 @@ def main():
     buffer = gateway = None
     try:
         if args.status:
+            BufferManager(args.db).close()
             print(json.dumps(database_status(args.db), ensure_ascii=False, indent=2))
             return
         config = load_config(args.config)

@@ -1,0 +1,30 @@
+apiVersion: 1
+
+datasources:
+  - name: InfluxDB-Flux
+    type: influxdb
+    uid: influxdb-flux
+    access: proxy
+    url: http://influxdb:8086
+    isDefault: true
+    jsonData:
+      version: Flux
+      organization: smart_agriculture
+      defaultBucket: smart_agriculture
+    secureJsonData:
+      token: smart-agriculture-dev-token
+    editable: true
+
+  - name: PostgreSQL
+    type: postgres
+    uid: postgresql
+    access: proxy
+    url: postgres:5432
+    database: smart_agriculture
+    user: agri
+    secureJsonData:
+      password: agri_dev_only
+    jsonData:
+      sslmode: disable
+      postgresVersion: 1600
+    editable: true

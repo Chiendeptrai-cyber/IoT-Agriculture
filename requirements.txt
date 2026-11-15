@@ -1,0 +1,15 @@
+# Core requirements for IoT Smart Agriculture System
+paho-mqtt>=2.1.0,<3.0.0
+PyYAML>=6.0.0
+jsonschema>=4.0.0
+pytest>=8.0.0
+
+# Server API & Client dependencies
+fastapi>=0.115,<1
+uvicorn[standard]>=0.30,<1
+sqlalchemy>=2.0,<3
+psycopg[binary]>=3.2,<4
+influxdb-client>=1.45,<2
+pydantic-settings>=2.5,<3
+python-dotenv>=1.0,<2
+requests>=2.31.0
