@@ -79,25 +79,25 @@ Phát sinh dữ liệu cho 3 cảm biến và gửi lên Mosquitto MQTT:
 source .venv/bin/activate
 
 # Cách A: Chạy định kỳ thông thường (mỗi 10 giây/lần gửi):
-python sensor-simulator/main.py
+python3 sensor-simulator/main.py
 
 # Cách B: Chạy kịch bản Demo chuyển đổi trạng thái (NORMAL -> ANOMALY -> OFFLINE -> RECOVERY):
-python sensor-simulator/main.py --demo --interval 1
+python3 sensor-simulator/main.py --demo --interval 1
 
 # Cách C: Chạy demo kiểm tra cảnh báo và bật/tắt bơm tức thời:
-python sensor-simulator/edge_demo.py
+python3 sensor-simulator/edge_demo.py
 ```
 
 ### Terminal 3 (Tùy chọn): Kiểm tra trạng thái Edge Gateway
 Xem thống kê số bản ghi `PENDING`, trạng thái máy bơm và sức khỏe cảm biến:
 ```bash
-python edge-gateway/main.py --status
+python3 edge-gateway/main.py --status
 ```
 
 ### Terminal 4 (Tùy chọn): Nạp dữ liệu mẫu nhanh lên Server & Grafana
 Nếu bạn muốn nạp ngay 15 phút dữ liệu biến thiên liên tục vào Server, InfluxDB và PostgreSQL để xem biểu đồ trên Grafana:
 ```bash
-python scripts/generate_dashboard_demo_data.py --minutes 15 --step 15
+python3 scripts/generate_dashboard_demo_data.py --minutes 15 --step 15
 ```
 
 ---
