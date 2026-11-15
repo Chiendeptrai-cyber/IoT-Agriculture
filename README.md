@@ -1,10 +1,11 @@
-# Smart Agriculture — Task 1, Task 2 & Task 2.1
+# Smart Agriculture — Task 1, Task 2, Task 2.1 & Task 4
 
-Task 1 mô phỏng ba cảm biến. Task 2 truyền JSON qua Eclipse Mosquitto bằng MQTT/TCP, QoS 1. Task 2.1 xây dựng Edge để kiểm tra, phân loại, lưu SQLite, cảnh báo, điều khiển bơm ảo và theo dõi ONLINE/STALE/OFFLINE độc lập với Server.
+Task 1 mô phỏng ba cảm biến. Task 2 truyền JSON qua Eclipse Mosquitto bằng MQTT/TCP, QoS 1. Task 2.1 xây dựng Edge để kiểm tra, phân loại, lưu SQLite, cảnh báo, điều khiển bơm ảo và theo dõi ONLINE/STALE/OFFLINE độc lập với Server. Task 4 bổ sung FastAPI, PostgreSQL và InfluxDB cho lưu trữ trung tâm và truy vấn.
 
 - [Hướng dẫn Task 2: cấu hình, sơ đồ, chạy và nghiệm thu](docs/mqtt.md)
 - [Task 2.1: Edge, SQLite, Sensor Health và demo khi không có Server](docs/edge.md)
 - [Kết quả kiểm thử](docs/test-results.md)
+- [Task 4: Server REST API](docs/server-api.md)
 - [Chi tiết mô phỏng Task 1](sensor-simulator/README.md)
 
 ## Quick Start:
@@ -43,6 +44,6 @@ python sensor-simulator/main.py --terminal --count 3 --interval 1
 python -m pytest tests -v
 ```
 
-Broker demo chỉ mở trên `127.0.0.1:1883`, cho phép anonymous. MQTT không phụ thuộc Server.
+Chạy toàn bộ broker và Server bằng `docker compose --env-file .env -f infrastructure/docker-compose.yml up -d --build --wait` sau khi sao chép `.env.example` thành `.env`. Broker/API/PostgreSQL/InfluxDB chỉ publish các cổng lên `127.0.0.1`; MQTT không phụ thuộc Server.
 Database mặc định: `edge-gateway/edge.db`, được tạo khi chạy Edge. Có thể dùng database cũ qua `--db data/edge.db`.
-Edge lưu dữ liệu PENDING và xử lý tại chỗ mà không cần Server. Buffer có hàm cập nhật SYNCED từ danh sách event_id đã được Server xác nhận; HTTP sync worker sẽ nối với REST API của Task 3.
+Edge lưu dữ liệu PENDING và xử lý tại chỗ mà không cần Server. Buffer có hàm cập nhật SYNCED từ danh sách `event_id` đã được Server xác nhận; xem hợp đồng request/ACK trong [tài liệu Server API](docs/server-api.md). HTTP Sync Manager từ Edge vẫn là phần tích hợp riêng.
