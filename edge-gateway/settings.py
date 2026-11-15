@@ -59,4 +59,17 @@ def load_config(path=None):
         raise ValueError("check_interval_seconds must be a finite positive number")
     if interval > health["stale_after_seconds"]:
         raise ValueError("check_interval_seconds must not exceed stale_after_seconds")
+
+    sync = config.setdefault("sync", {})
+    if not isinstance(sync, dict):
+        raise ValueError("sync must be a YAML mapping")
+    sync.setdefault("server_url", "http://127.0.0.1:8000/api/v1/telemetry/batch")
+    sync.setdefault("health_url", "http://127.0.0.1:8000/api/v1/health")
+    sync.setdefault("gateway_id", "GW-001")
+    sync.setdefault("batch_size", 100)
+    sync.setdefault("interval_seconds", 5.0)
+    sync.setdefault("timeout_seconds", 5.0)
+    sync.setdefault("retry_initial_backoff", 1.0)
+    sync.setdefault("retry_max_backoff", 30.0)
+    sync.setdefault("retry_backoff_factor", 2.0)
     return config

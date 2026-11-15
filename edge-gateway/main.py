@@ -11,6 +11,7 @@ import time
 from settings import DEFAULT_DB_PATH, load_config
 from buffer_manager import BufferManager, database_status
 from mqtt_client import EdgeGateway
+from sync_manager import SyncManager
 
 
 def main():
@@ -20,21 +21,29 @@ def main():
     parser.add_argument("--client-id", default=os.getenv("EDGE_MQTT_CLIENT_ID", "farm-edge-001"))
     parser.add_argument("--db", type=Path, default=Path(os.getenv("EDGE_DB_PATH", str(DEFAULT_DB_PATH))))
     parser.add_argument("--config", type=Path, default=None)
+    parser.add_argument("--server", default=os.getenv("SERVER_BATCH_URL", None), help="Central Server batch ingestion URL")
+    parser.add_argument("--no-sync", action="store_true", help="Disable automatic HTTP synchronization to Server")
     parser.add_argument("--status", action="store_true", help="Read SQLite status without connecting to MQTT")
     parser.add_argument("--duration", type=float, default=None, help="Run N seconds after subscription; default continuous")
     args = parser.parse_args()
     if args.duration is not None and args.duration <= 0:
         parser.error("--duration must be positive")
     logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(message)s")
-    buffer = gateway = None
+    buffer = gateway = sync_mgr = None
     try:
         if args.status:
             BufferManager(args.db).close()
-            print(json.dumps(database_status(args.db), ensure_ascii=False, indent=2))
+            status = database_status(args.db)
+            print(json.dumps(status, ensure_ascii=False, indent=2))
             return
         config = load_config(args.config)
         buffer = BufferManager(args.db)
-        logging.info("EDGE SQLite=%s; all telemetry remains PENDING until Server sync is implemented", buffer.path)
+        logging.info("EDGE SQLite=%s; starting Edge Gateway", buffer.path)
+
+        if not args.no_sync:
+            sync_mgr = SyncManager(buffer, config, server_url=args.server)
+            sync_mgr.start()
+
         gateway = EdgeGateway(buffer, config, args.host, args.port, args.client_id)
         gateway.start()
         deadline = time.monotonic() + args.duration if args.duration is not None else None
@@ -50,6 +59,8 @@ def main():
     except (OSError, sqlite3.Error, TimeoutError, ValueError, KeyError) as exc:
         parser.exit(1, f"EDGE ERROR: {exc}\n")
     finally:
+        if sync_mgr:
+            sync_mgr.stop()
         if gateway:
             gateway.close()
         if buffer:
