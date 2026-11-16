@@ -8,6 +8,8 @@ services:
       POSTGRES_DB: ${POSTGRES_DB:-smart_agriculture}
     ports:
       - "127.0.0.1:${POSTGRES_PORT:-5433}:5432"
+    networks:
+      - smart-agriculture-network
     volumes:
       - postgres_data:/var/lib/postgresql/data
     healthcheck:
@@ -29,6 +31,8 @@ services:
       DOCKER_INFLUXDB_INIT_ADMIN_TOKEN: ${INFLUXDB_TOKEN:-smart-agriculture-dev-token}
     ports:
       - "127.0.0.1:8086:8086"
+    networks:
+      - smart-agriculture-network
     volumes:
       - influxdb_data:/var/lib/influxdb2
       - influxdb_config:/etc/influxdb2
@@ -58,6 +62,8 @@ services:
       SOIL_MOISTURE_LOW_THRESHOLD: ${SOIL_MOISTURE_LOW_THRESHOLD:-30}
     ports:
       - "127.0.0.1:8000:8000"
+    networks:
+      - smart-agriculture-network
     depends_on:
       postgres:
         condition: service_healthy
@@ -75,6 +81,8 @@ services:
     restart: unless-stopped
     ports:
       - "127.0.0.1:1883:1883"
+    networks:
+      - smart-agriculture-network
     volumes:
       - ./mosquitto/mosquitto.conf:/mosquitto/config/mosquitto.conf:ro
       - mosquitto_data:/mosquitto/data
@@ -90,6 +98,8 @@ services:
     restart: unless-stopped
     ports:
       - "127.0.0.1:${GRAFANA_PORT:-3000}:3000"
+    networks:
+      - smart-agriculture-network
     environment:
       - GF_SECURITY_ADMIN_USER=${GRAFANA_ADMIN_USER:-admin}
       - GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_ADMIN_PASSWORD:-admin}
@@ -126,11 +136,21 @@ services:
       EDGE_DB_PATH: /data/edge.db
     volumes:
       - edge_data:/data
+    networks:
+      - smart-agriculture-network
     depends_on:
       mosquitto:
         condition: service_healthy
-      server:
-        condition: service_healthy
+    healthcheck:
+      test:
+        - CMD
+        - python3
+        - -c
+        - "import os, sqlite3; os.kill(1, 0); db=sqlite3.connect('/data/edge.db', timeout=2); assert db.execute('PRAGMA quick_check').fetchone()[0] == 'ok'; db.close()"
+      interval: 15s
+      timeout: 5s
+      retries: 3
+      start_period: 20s
 
   sensor-simulator:
     build:
@@ -140,7 +160,25 @@ services:
     environment:
       MQTT_HOST: mosquitto
       MQTT_PORT: 1883
+    restart: unless-stopped
+    networks:
+      - smart-agriculture-network
     profiles: ["normal", "simulator"]
+    depends_on:
+      mosquitto:
+        condition: service_healthy
+      edge-gateway:
+        condition: service_healthy
+    healthcheck:
+      test:
+        - CMD
+        - python3
+        - -c
+        - "import os, socket; os.kill(1, 0); sock=socket.create_connection(('mosquitto', 1883), timeout=2); sock.close()"
+      interval: 15s
+      timeout: 5s
+      retries: 3
+      start_period: 20s
     command: ["python3", "main.py", "--interval", "10"]
 
   sensor-simulator-demo:
@@ -151,6 +189,13 @@ services:
     environment:
       MQTT_HOST: mosquitto
       MQTT_PORT: 1883
+    networks:
+      - smart-agriculture-network
+    depends_on:
+      mosquitto:
+        condition: service_healthy
+      edge-gateway:
+        condition: service_healthy
     profiles: ["demo"]
     command: ["python3", "main.py", "--demo", "--interval", "1"]
 
@@ -162,6 +207,13 @@ services:
     environment:
       MQTT_HOST: mosquitto
       MQTT_PORT: 1883
+    networks:
+      - smart-agriculture-network
+    depends_on:
+      mosquitto:
+        condition: service_healthy
+      edge-gateway:
+        condition: service_healthy
     profiles: ["edge-demo"]
     command: ["python3", "edge_demo.py", "--interval", "1"]
 
@@ -172,4 +224,8 @@ volumes:
   influxdb_config:
   grafana_data:
   edge_data:
+
+networks:
+  smart-agriculture-network:
+    driver: bridge
 
