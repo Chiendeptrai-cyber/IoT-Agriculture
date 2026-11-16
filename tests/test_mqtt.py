@@ -4,6 +4,7 @@ import json
 import os
 from pathlib import Path
 import queue
+import re
 import subprocess
 import sys
 import time
@@ -120,6 +121,36 @@ def wait_until(predicate, timeout=20):
     pytest.fail("Timed out waiting for MQTT state")
 
 
+def receive_events_by_id(receipts, expected_ids, timeout=5):
+    """Ignore unrelated live publishers while waiting for this test's events."""
+    pending = set(expected_ids)
+    received = {}
+    deadline = time.monotonic() + timeout
+    while pending:
+        remaining = deadline - time.monotonic()
+        if remaining <= 0:
+            pytest.fail(f"Timed out waiting for event IDs: {sorted(pending)}")
+        item = receipts.get(timeout=remaining)
+        event_id = item["event"]["event_id"]
+        if event_id in pending:
+            received[event_id] = item
+            pending.remove(event_id)
+    return list(received.values())
+
+
+def assert_no_event_ids(receipts, forbidden_ids, observation_seconds=1):
+    """Check for retained/replayed test events without assuming a quiet broker."""
+    forbidden_ids = set(forbidden_ids)
+    deadline = time.monotonic() + observation_seconds
+    while time.monotonic() < deadline:
+        try:
+            item = receipts.get(timeout=min(0.1, deadline - time.monotonic()))
+        except queue.Empty:
+            continue
+        event_id = item["event"]["event_id"]
+        assert event_id not in forbidden_ids, f"Unexpected replay of {event_id}"
+
+
 @pytest.fixture
 def live_pair():
     if os.getenv("RUN_MQTT_INTEGRATION") != "1":
@@ -144,22 +175,20 @@ def test_live_three_topics_offline_and_no_retained_replay(live_pair):
     events = [sensor.generate_event() for sensor in fleet]
     for event in events:
         assert publisher.publish(event)
-    received = [receipts.get(timeout=5) for _ in events]
+    event_ids = {event["event_id"] for event in events}
+    received = receive_events_by_id(receipts, event_ids)
     assert {r["topic"] for r in received} == set(sensor_routes())
     assert {r["event"]["event_id"] for r in received} == {e["event_id"] for e in events}
     assert all(r["qos"] == 1 for r in received)
     for sensor in fleet:
         sensor.set_mode("OFFLINE")
         assert not publisher.publish(sensor.generate_event())
-    with pytest.raises(queue.Empty):
-        receipts.get(timeout=1)
     # A newly subscribed client must not receive the last old measurement.
     late_receipts = queue.Queue()
     late = MqttSubscriber(publisher.host, publisher.port, on_event=late_receipts.put)
     try:
         late.start()
-        with pytest.raises(queue.Empty):
-            late_receipts.get(timeout=1)
+        assert_no_event_ids(late_receipts, event_ids)
     finally:
         late.close()
     evidence_path = os.getenv("MQTT_EVIDENCE_PATH")
@@ -177,7 +206,12 @@ def test_live_cli_publishes_all_sensors(live_pair):
         capture_output=True, text=True, timeout=30,
     )
     assert result.returncode == 0, result.stderr
-    received = [receipts.get(timeout=5) for _ in range(6)]
+    published = re.findall(r"MQTT PUBLISHED topic=(\S+) event_id=(\S+) qos=\d+", result.stderr)
+    assert len(published) == 6, result.stderr
+    expected_topics = {event_id: topic for topic, event_id in published}
+    received = receive_events_by_id(receipts, set(expected_topics))
+    assert {record["event"]["event_id"] for record in received} == set(expected_topics)
+    assert all(record["topic"] == expected_topics[record["event"]["event_id"]] for record in received)
     for topic in sensor_routes():
         assert {r["event"]["sequence"] for r in received if r["topic"] == topic} == {1, 2}
 
@@ -187,18 +221,29 @@ def test_live_broker_restart_recovers(live_pair, caplog):
         pytest.skip("Set RUN_MQTT_RESTART=1 to allow stopping the local test broker")
     publisher, subscriber, receipts = live_pair
     command = ["docker", "compose", "-f", str(ROOT / "infrastructure" / "docker-compose.yml")]
+    while True:
+        try:
+            receipts.get_nowait()
+        except queue.Empty:
+            break
     subprocess.run(command + ["stop", "mosquitto"], check=True, timeout=40)
     try:
         wait_until(lambda: not publisher.connected.is_set() and not subscriber.ready.is_set())
         assert not publisher.publish(build_sensor_fleet()[0].generate_event())
+        while True:
+            try:
+                receipts.get_nowait()
+            except queue.Empty:
+                break
         with pytest.raises(queue.Empty):
             receipts.get(timeout=1)
     finally:
         subprocess.run(command + ["start", "mosquitto"], check=True, timeout=40)
     wait_until(lambda: publisher.connected.is_set() and subscriber.ready.is_set(), timeout=30)
-    for sensor in build_sensor_fleet():
-        assert publisher.publish(sensor.generate_event())
-    received = [receipts.get(timeout=5) for _ in range(3)]
+    recovery_events = [sensor.generate_event() for sensor in build_sensor_fleet()]
+    for event in recovery_events:
+        assert publisher.publish(event)
+    received = receive_events_by_id(receipts, {event["event_id"] for event in recovery_events})
     assert {r["topic"] for r in received} == set(sensor_routes())
     assert "DISCONNECTED" in caplog.text
     assert "SKIPPED_DISCONNECTED" in caplog.text
