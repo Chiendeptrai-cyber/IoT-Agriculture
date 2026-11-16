@@ -4,6 +4,7 @@ from datetime import timedelta
 import json
 import os
 from pathlib import Path
+import re
 import socket
 import sqlite3
 import subprocess
@@ -221,6 +222,44 @@ def wait_for_total(path, total):
     pytest.fail(f"Edge did not persist {total} records")
 
 
+def telemetry_rows_by_id(path, event_ids):
+    event_ids = set(event_ids)
+    if not event_ids:
+        return []
+    connection = sqlite3.connect(path)
+    try:
+        placeholders = ",".join("?" for _ in event_ids)
+        rows = connection.execute(
+            f"SELECT event_id,sync_status,classification FROM telemetry WHERE event_id IN ({placeholders})",
+            sorted(event_ids),
+        ).fetchall()
+        return [dict(zip(("event_id", "sync_status", "classification"), row)) for row in rows]
+    finally:
+        connection.close()
+
+
+def wait_for_event_ids(path, event_ids, timeout=10):
+    expected = set(event_ids)
+    deadline = time.monotonic() + timeout
+    while time.monotonic() < deadline:
+        rows = telemetry_rows_by_id(path, expected)
+        if {row["event_id"] for row in rows} == expected:
+            return rows
+        time.sleep(0.05)
+    pytest.fail(f"Edge did not persist event IDs: {sorted(expected)}")
+
+
+def quarantine_contains_event_id(path, event_id):
+    connection = sqlite3.connect(path)
+    try:
+        return connection.execute(
+            "SELECT 1 FROM quarantine WHERE CAST(payload AS TEXT) LIKE ? LIMIT 1",
+            (f"%{event_id}%",),
+        ).fetchone() is not None
+    finally:
+        connection.close()
+
+
 def test_live_mqtt_edge_without_server_survives_process_restart(tmp_path):
     if os.getenv("RUN_MQTT_INTEGRATION") != "1":
         pytest.skip("Set RUN_MQTT_INTEGRATION=1 and start Mosquitto")
@@ -234,7 +273,11 @@ def test_live_mqtt_edge_without_server_survives_process_restart(tmp_path):
     # The port is reserved but not listening, so no Server can accept requests.
     path = tmp_path / "live-edge.db"
     client_id = f"edge-integration-{uuid.uuid4().hex}"
-    environment = dict(os.environ, SERVER_URL=unavailable_server)
+    environment = dict(
+        os.environ,
+        SERVER_BATCH_URL=f"{unavailable_server}/api/v1/telemetry/batch",
+        SERVER_HEALTH_URL=f"{unavailable_server}/api/v1/health",
+    )
     command = [sys.executable, "-u", str(ROOT / "edge-gateway" / "main.py"),
                "--host", host, "--port", str(port), "--db", str(path), "--client-id", client_id]
     publisher = MqttPublisher(host, port)
@@ -259,40 +302,59 @@ def test_live_mqtt_edge_without_server_survives_process_restart(tmp_path):
         publisher.start()
         with first_path.open("w", encoding="utf-8") as log:
             process = launch(log, first_path)
+            initial_events = []
             for kind, value in [("temperature", 40), ("humidity", 35), ("soil_moisture", 20)]:
                 _, event = reading(kind, value)
+                initial_events.append(event)
                 assert publisher.publish(event)
-            wait_for_total(path, 3)
+            initial_ids = {event["event_id"] for event in initial_events}
+            wait_for_event_ids(path, initial_ids)
             before = database_status(path)
-            assert (before["pending"], before["alerts"], before["pump"]["state"]) == (3, 2, "ON")
+            initial_rows = telemetry_rows_by_id(path, initial_ids)
+            assert len(initial_rows) == 3
+            assert all(row["sync_status"] == "PENDING" for row in initial_rows)
+            assert {row["classification"] for row in initial_rows} == {"ANOMALY"}
             # Abrupt process termination: committed data and state must survive.
             process.kill()
             process.wait(timeout=10)
             process = None
-        assert database_status(path)["pending"] == 3
+        assert {row["event_id"] for row in telemetry_rows_by_id(path, initial_ids)} == initial_ids
         with second_path.open("w", encoding="utf-8") as log:
             process = launch(log, second_path)
-            assert database_status(path)["pump"]["state"] == "ON"
-            assert publisher.publish(reading("soil_moisture", 32, sequence=2)[1])
-            wait_for_total(path, 4)
-            assert database_status(path)["pump"]["state"] == "ON"
-            assert publisher.publish(reading("soil_moisture", 40, sequence=3)[1])
-            wait_for_total(path, 5)
+            moisture_32 = reading("soil_moisture", 32, sequence=2)[1]
+            moisture_40 = reading("soil_moisture", 40, sequence=3)[1]
+            assert publisher.publish(moisture_32)
+            wait_for_event_ids(path, {moisture_32["event_id"]})
+            assert publisher.publish(moisture_40)
+            wait_for_event_ids(path, {moisture_40["event_id"]})
+            owned_ids = initial_ids | {moisture_32["event_id"], moisture_40["event_id"]}
             after = database_status(path)
-            assert (after["pending"], after["synced"], after["pump"]["state"], after["device_actions"]) == (5, 0, "OFF", 2)
+            owned_rows = telemetry_rows_by_id(path, owned_ids)
+            assert len(owned_rows) == 5
+            assert all(row["sync_status"] == "PENDING" for row in owned_rows)
             demo = subprocess.run(
                 [sys.executable, str(ROOT / "sensor-simulator" / "edge_demo.py"), "--host", host,
                  "--port", str(port), "--interval", "0.05"],
                 capture_output=True, text=True, timeout=20,
             )
             assert demo.returncode == 0, demo.stderr
-            wait_for_total(path, 10)
+            published = re.findall(r"MQTT PUBLISHED topic=(\S+) event_id=(\S+) qos=\d+", demo.stderr)
+            assert len(published) == 7, demo.stderr
+            demo_valid_ids = {event_id for _topic, event_id in published[:5]}
+            demo_invalid_id = published[5][1]
+            assert published[-1][1] == published[0][1]
+            wait_for_event_ids(path, demo_valid_ids)
             deadline = time.monotonic() + 5
-            while database_status(path)["quarantined"] < 1 or "EDGE DUPLICATE" not in second_path.read_text(encoding="utf-8", errors="replace"):
+            while (
+                "EDGE DUPLICATE" not in second_path.read_text(encoding="utf-8", errors="replace")
+                or not quarantine_contains_event_id(path, demo_invalid_id)
+            ):
                 assert time.monotonic() < deadline, "Demo duplicate/quarantine not processed"
                 time.sleep(0.05)
             after_demo = database_status(path)
-            assert (after_demo["pending"], after_demo["alerts"], after_demo["device_actions"], after_demo["quarantined"]) == (10, 4, 4, 1)
+            demo_rows = telemetry_rows_by_id(path, demo_valid_ids)
+            assert len(demo_rows) == 5
+            assert all(row["sync_status"] == "PENDING" for row in demo_rows)
         evidence = os.getenv("EDGE_EVIDENCE_PATH")
         if evidence:
             Path(evidence).write_text(json.dumps({"server_url_unavailable": unavailable_server,
