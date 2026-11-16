@@ -426,3 +426,76 @@ def test_kt3_unacknowledged_records_never_deleted_or_lost(test_env):
     pending_records = buffer.pending_batch()
     assert len(pending_records) == 1
     assert pending_records[0]["event_id"] == ev2["event_id"]
+
+
+def test_kt3_partial_ack_keeps_unacknowledged_records_and_backs_off(test_env, monkeypatch):
+    """A partial HTTP 200 ACK must retain pending rows and use retry backoff."""
+    buffer = test_env["buffer"]
+    gateway = test_env["gateway"]
+    sync_mgr = test_env["sync_manager"]
+
+    for seq in (1, 2):
+        topic, event = make_event("temperature", 28.0 + seq, seq)
+        gateway.process(topic, json.dumps(event).encode())
+
+    sent_batches = []
+
+    def partial_ack(_url, **kwargs):
+        sent_ids = [record["event_id"] for record in kwargs["json"]["records"]]
+        sent_batches.append(sent_ids)
+        response = requests.Response()
+        response.status_code = 200
+        response.headers["Content-Type"] = "application/json"
+        response._content = json.dumps(
+            {
+                "received": len(sent_ids),
+                "accepted": 1,
+                "duplicates": 0,
+                "rejected": len(sent_ids) - 1,
+                "acknowledged_event_ids": [sent_ids[0]],
+                "rejected_records": [],
+            }
+        ).encode("utf-8")
+        return response
+
+    class StopAfterBackoff:
+        def __init__(self):
+            self.waits = []
+
+        def is_set(self):
+            return False
+
+        def wait(self, seconds):
+            self.waits.append(seconds)
+            return True
+
+    stop_event = StopAfterBackoff()
+    monkeypatch.setattr(sync_mgr.session, "post", partial_ack)
+    monkeypatch.setattr(sync_mgr, "_stop_event", stop_event)
+
+    sync_mgr._worker_loop()
+
+    status = database_status(buffer.path)
+    pending = buffer.pending_batch()
+    assert len(sent_batches) == 1
+    assert stop_event.waits == [1.0]
+    assert status["synced"] == 1
+    assert status["pending"] == 1
+    assert len(pending) == 1
+    assert pending[0]["event_id"] == sent_batches[0][1]
+    assert sync_mgr.consecutive_failures == 1
+    assert sync_mgr.current_backoff == 1.0
+    assert "ACK was incomplete" in sync_mgr.last_error
+
+    # The synchronous flush reports records acknowledged before a later partial ACK.
+    topic, event = make_event("temperature", 32.0, 3)
+    gateway.process(topic, json.dumps(event).encode())
+    flush_result = sync_mgr.sync_all()
+    assert flush_result["success"] is False
+    assert flush_result["batches"] == 1
+    assert flush_result["total_synced"] == 1
+    assert flush_result["rejected"] == 1
+    assert flush_result["remaining_pending"] == 1
+    assert len(sent_batches) == 2
+    assert sync_mgr.consecutive_failures == 2
+    assert sync_mgr.current_backoff == 2.0

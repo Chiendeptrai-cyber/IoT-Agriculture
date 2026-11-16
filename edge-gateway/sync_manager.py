@@ -165,19 +165,7 @@ class SyncManager:
                     self.total_synced += synced_count
                     self.total_batches += 1
                     self.last_sync_time = datetime.now(timezone.utc).isoformat()
-                    self.consecutive_failures = 0
-                    self.current_backoff = self.initial_backoff
-                    self.last_error = None
                     remaining_pending = self.buffer.get_pending_count()
-
-                    LOG.info(
-                        "SYNC SUCCESS: sent=%d, acknowledged=%d (new=%d, duplicates=%d), remaining_pending=%d",
-                        len(sent_event_ids),
-                        len(ack_ids),
-                        synced_count,
-                        duplicates,
-                        remaining_pending,
-                    )
 
                     if rejected > 0:
                         LOG.warning(
@@ -186,6 +174,48 @@ class SyncManager:
                             body.get("rejected_records", []),
                         )
 
+                    missing_event_ids = set(sent_event_ids).difference(ack_ids)
+                    if missing_event_ids:
+                        self._apply_failure()
+                        err_msg = (
+                            f"Server ACK was incomplete: {len(missing_event_ids)} of "
+                            f"{len(sent_event_ids)} sent record(s) remain unacknowledged"
+                        )
+                        self.last_error = err_msg
+                        LOG.warning(
+                            "SYNC PARTIAL ACK: sent=%d, acknowledged=%d (new=%d, duplicates=%d), "
+                            "missing=%d, remaining_pending=%d (backoff=%.1fs)",
+                            len(sent_event_ids),
+                            len(ack_ids),
+                            synced_count,
+                            duplicates,
+                            len(missing_event_ids),
+                            remaining_pending,
+                            self.current_backoff,
+                        )
+                        return SyncResult(
+                            success=False,
+                            synced=synced_count,
+                            acknowledged=ack_ids,
+                            duplicates=duplicates,
+                            rejected=rejected,
+                            remaining_pending=remaining_pending,
+                            error=err_msg,
+                            status_code=200,
+                            retry_after=self.current_backoff,
+                        )
+
+                    self.consecutive_failures = 0
+                    self.current_backoff = self.initial_backoff
+                    self.last_error = None
+                    LOG.info(
+                        "SYNC SUCCESS: sent=%d, acknowledged=%d (new=%d, duplicates=%d), remaining_pending=%d",
+                        len(sent_event_ids),
+                        len(ack_ids),
+                        synced_count,
+                        duplicates,
+                        remaining_pending,
+                    )
                     return SyncResult(
                         success=True,
                         synced=synced_count,
@@ -288,18 +318,20 @@ class SyncManager:
             if self.buffer.get_pending_count() == 0:
                 break
             result = self.sync_batch()
+            batches += 1
+            total_synced += result.synced
+            total_dups += result.duplicates
+            total_rej += result.rejected
             if not result.success:
                 return {
                     "success": False,
                     "batches": batches,
                     "total_synced": total_synced,
+                    "duplicates": total_dups,
+                    "rejected": total_rej,
                     "remaining_pending": result.remaining_pending,
                     "error": result.error,
                 }
-            batches += 1
-            total_synced += result.synced
-            total_dups += result.duplicates
-            total_rej += result.rejected
             if result.synced == 0 and result.remaining_pending == 0:
                 break
 
