@@ -48,10 +48,10 @@ Hạ tầng hệ thống được container hóa toàn bộ bằng Docker Compos
 cp -n .env.example .env
 
 # 2. Khởi chạy toàn bộ hệ thống (Hạ tầng + Edge Gateway tự động chạy):
-docker compose --env-file .env -f infrastructure/docker-compose.yml up -d --build
+docker compose --env-file .env --profile normal up -d --build --wait
 
 # 3. Kiểm tra trạng thái các container (tất cả phải ở trạng thái healthy/running):
-docker compose --env-file .env -f infrastructure/docker-compose.yml ps
+docker compose --env-file .env --profile normal ps
 ```
 
 ### Các Cổng Dịch Vụ Mặc Định:
@@ -185,9 +185,28 @@ Khi muốn dừng toàn bộ các tiến trình và hạ tầng:
 - Nhấn `Ctrl + C` tại các Terminal đang chạy Edge Gateway và Sensor Simulator.
 - Tắt các dịch vụ Docker:
   ```bash
-  docker compose --env-file .env -f infrastructure/docker-compose.yml down
+  docker compose --env-file .env --profile normal down
   ```
 - Nếu muốn xóa trắng toàn bộ dữ liệu database để demo lại từ đầu:
   ```bash
-  docker compose --env-file .env -f infrastructure/docker-compose.yml down -v
+  docker compose --env-file .env --profile normal down -v
   ```
+
+## Task 8 — Kiểm thử nghiệm thu và tài liệu bàn giao
+
+Task 8 bổ sung acceptance tests KT1–KT3, đo capacity Edge SQLite thật, kiểm tra query Grafana và kịch bản bảo vệ. Tài liệu kỹ thuật:
+
+- Kiến trúc: docs/architecture.md; luồng dữ liệu: docs/data-flow.md.
+- Công nghệ và database: docs/technology-stack.md, docs/database-design.md.
+- API, dung lượng, kiểm thử và bằng chứng: docs/api-documentation.md, docs/capacity-calculation.md, docs/test-results.md, docs/task8-verification.json.
+- Triển khai, báo cáo, demo: docs/deployment-guide.md, docs/project-report.md, docs/final-demo-script.md.
+
+Chạy full suite với Mosquitto thật và kiểm thử restart broker trên Windows PowerShell:
+
+```powershell
+$env:RUN_MQTT_INTEGRATION = "1"
+$env:RUN_MQTT_RESTART = "1"
+python -m pytest -p no:cacheprovider -q -rs tests
+Remove-Item Env:RUN_MQTT_INTEGRATION, Env:RUN_MQTT_RESTART
+python scripts/verify_all_panels.py --require-data
+```
