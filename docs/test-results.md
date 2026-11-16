@@ -1,4 +1,39 @@
-# Kết quả kiểm thử Task 2 và Task 2.1
+# Kết quả kiểm thử và nghiệm thu
+
+## Task 8 — Kết quả kiểm tra cuối (16/11/2026)
+
+| Tiêu chí | Kết quả | Bằng chứng |
+| --- | --- | --- |
+| Functional + acceptance suite | **121 passed, 0 failed, 0 skipped** | Chạy toàn bộ tests với RUN_MQTT_INTEGRATION=1 và RUN_MQTT_RESTART=1; có Mosquitto thật |
+| KT1 | **Đạt** | Acceptance test kiểm tra ba simulator qua Edge/API; stack live hiển thị đủ 3 sensor ID. Năm live demo event có 5 ID duy nhất, STORED trong PostgreSQL và có point Influx; replay không tạo bản ghi logic mới |
+| KT2 | **Đạt** | Automated test và live demo xác minh nhiệt độ cao, humidity thấp, soil thấp; API trả ba loại alert; anomaly classification, humidity 150% vào quarantine; pump ON dưới 30% và OFF trên 35% |
+| KT3 | **Đạt** | Unit/acceptance test và outage thật trên Compose: dừng Server, 5 event vẫn PENDING tại SQLite; khôi phục Server thì 5/5 SYNCED và cùng 5 ID có trong PostgreSQL/InfluxDB |
+| MQTT thật | **Đạt** | Ba topic/QoS 1, kiểm tra offline/no retained; restart Mosquitto và client tự kết nối lại |
+| REST API đang chạy | **Đạt** | health, sensors, latest, alerts, Swagger UI, OpenAPI đều HTTP 200 |
+| Grafana đang chạy | **Đạt** | 9/9 query panel thành công và trả dữ liệu trong Last 15 minutes |
+| Docker Compose | **Đạt** | 7/7 service healthy sau kiểm thử và restart Mosquitto |
+| Persistence | **Đạt** | Restart Edge, PostgreSQL, InfluxDB; EVT-38741E806BEF còn SYNCED ở SQLite, 1 STORED row tại PostgreSQL và point tồn tại trong InfluxDB |
+
+### Bằng chứng Grafana trực tiếp
+
+Kiểm tra bởi scripts/verify_all_panels.py --require-data: Temperature 1 row; Air Humidity 1; Soil Moisture 1; Temperature Trend 114; Soil Moisture Trend 124; Sensor Status 3; Pump Status 1; Sync Status 1; Alert History 50. Query API được gọi trực tiếp từ Grafana datasource trên Docker Compose đang chạy.
+
+### Performance và capacity
+
+Tại snapshot Edge SQLite 1.478 record: 0 PENDING, 1.478 SYNCED; 778.240 B page allocation, trung bình 526,55 B/event; JSON payload trung bình 139,78 B. Độ trễ Edge receive đến SYNCED: median 2.247,92 ms, P95 4.910,69 ms, max 121.457,86 ms. Tải danh nghĩa chu kỳ 10 giây là 25.920 event/ngày và 777.600 event/30 ngày; page-allocation projection là khoảng 409 MB trước dự phòng. Xem [capacity calculation](capacity-calculation.md) và scripts/task8_capacity_report.py.
+
+### Findings đã khắc phục
+
+- Thay test_kt1.py và test_kt2.py đang để placeholder bằng acceptance test tích hợp Simulator → Edge → API/storage.
+- Sửa test KT3 outage để đặt SERVER_BATCH_URL/SERVER_HEALTH_URL đúng biến mà Sync Manager đọc; test không còn vô tình gửi vào Server đang chạy.
+- Sửa live MQTT test để lọc theo event_id của chính test, tránh publisher bình thường đang chạy gây flaky test; đối chiếu CLI event ID từ log PUBLISHED.
+- Sửa scripts/verify_all_panels.py dùng dashboard path tương đối, URL/credential cấu hình được qua environment và có tùy chọn --require-data.
+
+Kết quả này gồm test cục bộ, MQTT thật và API/Grafana trên stack đang chạy. Phần restart persistence được kiểm chứng trực tiếp trên named volumes. Các kết quả Task 2/2.1 cũ ở phần dưới là log lịch sử, không thay thế số liệu Task 8 này.
+
+---
+
+## Lịch sử kiểm thử Task 2 và Task 2.1
 
 Ngày thực hiện: 10/11/2026. Môi trường kiểm thử: Windows, Python 3.13.6, Paho MQTT 2.2.0, pytest 9.2.0, Docker Desktop/Linux containers, Eclipse Mosquitto 2.0.22. Môi trường mục tiêu Python 3.12 trên Linux chưa được chạy trong phiên này.
 

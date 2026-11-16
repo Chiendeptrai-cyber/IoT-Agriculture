@@ -1,0 +1,110 @@
+{
+  "verified_at_local_date": "2026-11-16",
+  "automated_suite": {
+    "command": "RUN_MQTT_INTEGRATION=1 RUN_MQTT_RESTART=1 python -m pytest -p no:cacheprovider -q -rs tests",
+    "passed": 121,
+    "failed": 0,
+    "skipped": 0,
+    "real_mosquitto": true,
+    "broker_restart_recovery": true
+  },
+  "compose": {
+    "service_count": 7,
+    "services_healthy_after_restart": [
+      "sensor-simulator",
+      "mosquitto",
+      "edge-gateway",
+      "server",
+      "postgres",
+      "influxdb",
+      "grafana"
+    ],
+    "restarted_storage_services": ["edge-gateway", "postgres", "influxdb"],
+    "persistence_marker": {
+      "event_id": "EVT-38741E806BEF",
+      "edge_sqlite": "SYNCED",
+      "postgresql": "1 row, STORED",
+      "influxdb": "point found"
+    }
+  },
+  "live_task6_outage_recovery": {
+    "server_stopped": true,
+    "edge_pending_while_server_offline": 5,
+    "invalid_reading_quarantined": true,
+    "edge_synced_after_recovery": 5,
+    "postgres_rows_unique_stored": "5|5|5",
+    "influx_points_found": 5,
+    "event_ids": [
+      "EVT-AF53601C1DEB",
+      "EVT-8AEFFDF88C11",
+      "EVT-5CCF30D763FF",
+      "EVT-0B93DE70F889",
+      "EVT-5990DC21E296"
+    ]
+  },
+  "live_demo": {
+    "transport": "MQTT QoS 1 via local Mosquitto",
+    "sensor_ids_reported_by_api": ["SEN-001", "SEN-002", "SEN-003"],
+    "valid_events": 5,
+    "duplicate_resend": 1,
+    "invalid_event_quarantined": "EVT-0C764BAC197A",
+    "accepted_event_ids": [
+      "EVT-E31B625C6C50",
+      "EVT-12C6C50B3136",
+      "EVT-F643268CEA7F",
+      "EVT-D1F9D4A85558",
+      "EVT-6271CBE5D631"
+    ],
+    "server_alert_event_ids": [
+      "EVT-E31B625C6C50",
+      "EVT-12C6C50B3136",
+      "EVT-F643268CEA7F"
+    ],
+    "edge_alerts": ["HIGH_TEMPERATURE", "LOW_HUMIDITY"],
+    "pump_transitions": ["OFF->ON", "ON->OFF"],
+    "valid_events_stored_once_in_postgres_and_influx": 5
+  },
+  "api_smoke_http_status": {
+    "/api/v1/health": 200,
+    "/api/v1/sensors": 200,
+    "/api/v1/sensors/SEN-001/latest": 200,
+    "/api/v1/sensors/SEN-002/latest": 200,
+    "/api/v1/sensors/SEN-003/latest": 200,
+    "/api/v1/alerts?limit=20": 200,
+    "/docs": 200,
+    "/openapi.json": 200
+  },
+  "grafana_panels": {
+    "verified": 9,
+    "total": 9,
+    "rows": {
+      "Temperature": 1,
+      "Air Humidity": 1,
+      "Soil Moisture": 1,
+      "Temperature Trend": 114,
+      "Soil Moisture Trend": 124,
+      "Sensor Status": 3,
+      "Pump Status": 1,
+      "Sync Status": 1,
+      "Alert History": 50
+    }
+  },
+  "capacity_snapshot": {
+    "edge_telemetry_records": 1478,
+    "pending": 0,
+    "synced": 1478,
+    "sqlite_page_allocation_bytes": 778240,
+    "sqlite_active_total_file_bytes": 4918872,
+    "sqlite_allocated_bytes_per_event": 526.55,
+    "json_payload_average_bytes": 139.78,
+    "sync_delay_samples": 1478,
+    "sync_delay_median_ms": 2247.92,
+    "sync_delay_p95_ms": 4910.69,
+    "sync_delay_max_ms": 121457.86,
+    "nominal_events_per_day": 25920,
+    "nominal_events_per_30_days": 777600,
+    "sqlite_30_day_projection_bytes": 409444806,
+    "postgresql_volume_bytes": 65916645,
+    "influxdb_volume_bytes": 34314303
+  }
+}
