@@ -8,8 +8,7 @@
 .test-runs
 tests
 docs
-sensor-simulator
-edge-gateway
 network-simulator
 infrastructure
+
 

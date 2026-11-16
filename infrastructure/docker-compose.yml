@@ -112,9 +112,64 @@ services:
       retries: 5
       start_period: 10s
 
+  edge-gateway:
+    build:
+      context: ..
+      dockerfile: edge-gateway/Dockerfile
+      network: host
+    restart: unless-stopped
+    environment:
+      MQTT_HOST: mosquitto
+      MQTT_PORT: 1883
+      SERVER_BATCH_URL: http://server:8000/api/v1/telemetry/batch
+      SERVER_HEALTH_URL: http://server:8000/api/v1/health
+      EDGE_DB_PATH: /data/edge.db
+    volumes:
+      - edge_data:/data
+    depends_on:
+      mosquitto:
+        condition: service_healthy
+      server:
+        condition: service_healthy
+
+  sensor-simulator:
+    build:
+      context: ..
+      dockerfile: sensor-simulator/Dockerfile
+      network: host
+    environment:
+      MQTT_HOST: mosquitto
+      MQTT_PORT: 1883
+    profiles: ["normal", "simulator"]
+    command: ["python3", "main.py", "--interval", "10"]
+
+  sensor-simulator-demo:
+    build:
+      context: ..
+      dockerfile: sensor-simulator/Dockerfile
+      network: host
+    environment:
+      MQTT_HOST: mosquitto
+      MQTT_PORT: 1883
+    profiles: ["demo"]
+    command: ["python3", "main.py", "--demo", "--interval", "1"]
+
+  sensor-simulator-edge-demo:
+    build:
+      context: ..
+      dockerfile: sensor-simulator/Dockerfile
+      network: host
+    environment:
+      MQTT_HOST: mosquitto
+      MQTT_PORT: 1883
+    profiles: ["edge-demo"]
+    command: ["python3", "edge_demo.py", "--interval", "1"]
+
 volumes:
   mosquitto_data:
   postgres_data:
   influxdb_data:
   influxdb_config:
   grafana_data:
+  edge_data:
+

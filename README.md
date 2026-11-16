@@ -38,13 +38,16 @@ pip install -r requirements.txt
 
 ## 2. Khởi Động Hạ Tầng Docker (Infrastructure)
 
-Hạ tầng bao gồm Mosquitto, PostgreSQL, InfluxDB, Server API và Grafana:
+Hạ tầng hệ thống được container hóa toàn bộ bằng Docker Compose, bao gồm:
+- **Hạ tầng lõi**: Mosquitto (MQTT 1883), PostgreSQL (5433), InfluxDB (8086), Server API (8000), Grafana (3000).
+- **Edge Gateway**: Tự động chạy ngầm trong container, kết nối MQTT nội bộ, lưu đệm SQLite vào volume bền vững (`edge_data`), tự động đồng bộ HTTP lên Server mỗi 5s.
+- **Sensor Simulator**: Sẵn sàng chạy theo kịch bản tương tác (CLI) hoặc chạy ngầm (Profiles).
 
 ```bash
 # 1. Tạo file cấu hình môi trường nếu chưa có:
 cp -n .env.example .env
 
-# 2. Khởi chạy toàn bộ container:
+# 2. Khởi chạy toàn bộ hệ thống (Hạ tầng + Edge Gateway tự động chạy):
 docker compose --env-file .env -f infrastructure/docker-compose.yml up -d --build
 
 # 3. Kiểm tra trạng thái các container (tất cả phải ở trạng thái healthy/running):
@@ -62,43 +65,79 @@ docker compose --env-file .env -f infrastructure/docker-compose.yml ps
 
 ---
 
-## 3. Hướng Dẫn Vận Hành Hệ Thống (Quick Start)
+## 3. Hướng Dẫn Vận Hành & Chạy Cảm Biến (Quick Start)
 
-Để chạy luồng hoạt động đầy đủ của hệ thống, hãy mở các cửa sổ Terminal:
+Khi hạ tầng và Edge Gateway đã chạy ngầm trong Docker (`docker compose up -d`), bạn chỉ cần chạy bộ mô phỏng cảm biến.
 
-### Terminal 1: Khởi động Edge Gateway
-Tiếp nhận dữ liệu MQTT từ Broker, kiểm tra tính hợp lệ, lưu trữ SQLite bền vững, phát cảnh báo và điều khiển máy bơm cục bộ:
+Có 2 cách vận hành linh hoạt bằng Docker (và 1 cách chạy trực tiếp bằng Python host):
+
+### 🎯 Cách 1: Chạy Tương Tác Qua Docker (Khuyên Dùng khi Test / Demo trực quan)
+Chạy trực tiếp trong Terminal hiện tại, xem log phát sinh dữ liệu thời gian thực. Nhấn `Ctrl + C` để dừng:
+
 ```bash
-source .venv/bin/activate
-python edge-gateway/main.py
+# Chế độ A: Phát sinh dữ liệu định kỳ bình thường (10 giây/lần gửi):
+docker compose -f infrastructure/docker-compose.yml run --rm sensor-simulator python3 main.py
+
+# Chế độ B: Kịch bản Demo chuyển đổi trạng thái (NORMAL -> ANOMALY -> OFFLINE -> RECOVERY, 1s/lần):
+docker compose -f infrastructure/docker-compose.yml run --rm sensor-simulator python3 main.py --demo --interval 1
+
+# Chế độ C: Kịch bản kích hoạt ngưỡng cảnh báo & bật/tắt bơm tức thời:
+docker compose -f infrastructure/docker-compose.yml run --rm sensor-simulator python3 edge_demo.py
 ```
 
-### Terminal 2: Chạy Bộ Mô Phỏng Cảm Biến
-Phát sinh dữ liệu cho 3 cảm biến và gửi lên Mosquitto MQTT:
+---
+
+### 🚀 Cách 2: Chạy Ngầm Bằng Docker Compose Profiles (Dễ dàng chuyển đổi chế độ)
+Chạy container cảm biến ngầm trong Docker mà không cần giữ mở terminal:
+
+```bash
+# 1. Bật chế độ chạy định kỳ thông thường (10s/lần):
+docker compose --env-file .env -f infrastructure/docker-compose.yml --profile normal up -d
+
+# 2. Hoặc chuyển sang chế độ Demo chuyển đổi trạng thái (1s/lần):
+docker compose --env-file .env -f infrastructure/docker-compose.yml --profile normal stop
+docker compose --env-file .env -f infrastructure/docker-compose.yml --profile demo up -d
+
+# 3. Xem log dữ liệu đang gửi:
+docker compose -f infrastructure/docker-compose.yml logs -f sensor-simulator
+# hoặc (khi ở chế độ demo):
+docker compose -f infrastructure/docker-compose.yml logs -f sensor-simulator-demo
+
+# 4. Dừng gửi dữ liệu cảm biến:
+docker compose -f infrastructure/docker-compose.yml stop sensor-simulator sensor-simulator-demo
+```
+
+---
+
+### 💻 Cách 3: Chạy Bằng Python Trên Máy Chủ (Dành cho Lập Trình Viên)
+Nếu bạn muốn debug trực tiếp mã nguồn bằng Python trên host:
 ```bash
 source .venv/bin/activate
 
-# Cách A: Chạy định kỳ thông thường (mỗi 10 giây/lần gửi):
-python3 sensor-simulator/main.py
-
-# Cách B: Chạy kịch bản Demo chuyển đổi trạng thái (NORMAL -> ANOMALY -> OFFLINE -> RECOVERY):
+# Chạy cảm biến:
 python3 sensor-simulator/main.py --demo --interval 1
-
-# Cách C: Chạy demo kiểm tra cảnh báo và bật/tắt bơm tức thời:
-python3 sensor-simulator/edge_demo.py
 ```
 
-### Terminal 3 (Tùy chọn): Kiểm tra trạng thái Edge Gateway
-Xem thống kê số bản ghi `PENDING`, trạng thái máy bơm và sức khỏe cảm biến:
-```bash
-python3 edge-gateway/main.py --status
-```
+---
 
-### Terminal 4 (Tùy chọn): Nạp dữ liệu mẫu nhanh lên Server & Grafana
-Nếu bạn muốn nạp ngay 15 phút dữ liệu biến thiên liên tục vào Server, InfluxDB và PostgreSQL để xem biểu đồ trên Grafana:
-```bash
-python3 scripts/generate_dashboard_demo_data.py --minutes 15 --step 15
-```
+### Các Lệnh Tiện Ích Khác:
+
+- **Xem log thời gian thực của Edge Gateway**:
+  ```bash
+  docker compose -f infrastructure/docker-compose.yml logs -f edge-gateway
+  ```
+
+- **Kiểm tra trạng thái bộ đệm SQLite & máy bơm của Edge Gateway**:
+  ```bash
+  docker compose -f infrastructure/docker-compose.yml exec edge-gateway python3 main.py --status
+  ```
+
+- **Nạp nhanh 15–60 phút dữ liệu mẫu vào Server & Grafana**:
+  ```bash
+  source .venv/bin/activate
+  python3 scripts/generate_dashboard_demo_data.py --minutes 30 --step 15
+  ```
+
 
 ---
 
